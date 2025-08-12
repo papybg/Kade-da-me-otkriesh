@@ -1,1 +1,13 @@
-
+[
+  {
+    "level": 1,
+    "name": "Първо ниво",
+    "background": "images/fon.png",
+    "slots": [
+      { "position": { "top": "33%", "left": "31%" }, "index": "s" },
+      { "position": { "top": "33%", "left": "46%" }, "index": "r" },
+      { "position": { "top": "33%", "left": "61%" }, "index": "p" }
+    ],
+    "distractors": 2
+  }
+]
