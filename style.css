@@ -1,8 +1,6 @@
 :root {
-    --primary-color: #007bff;
-    --background-light: #f5f5f5;
-    --success-color: #28a745;
-    --error-color: #dc3545;
+    --primary-color: #0d6efd;
+    --success-color: #198754;
     --slot-bg: rgba(255, 255, 255, 0.6);
     --slot-border: #FFF;
     --slot-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -72,14 +70,38 @@ body {
     min-height: 150px;
 }
 
+/* --- СТИЛОВЕ ЗА ЛЕНТАТА С КАРТИНКИ --- */
 #choiceZone {
     display: flex;
-    justify-content: center;
     align-items: center;
-    flex-wrap: wrap;
     gap: 15px;
-    min-height: 120px;
+    overflow-x: auto; /* Добавя хоризонтален скрол */
+    justify-content: flex-start; /* Подрежда картинките вляво */
+    padding: 15px;
+    min-height: auto;
 }
+
+/* Стил за самите картинки в лентата */
+#choiceZone img {
+    height: 100px;
+    width: 100px;
+    object-fit: contain;
+    background-color: white;
+    border: 4px solid var(--slot-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* Предотвратява смаляването на картинките */
+}
+
+#choiceZone img:hover {
+    transform: scale(1.08);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+/* --- КРАЙ НА СТИЛОВЕТЕ ЗА ЛЕНТАТА --- */
+
 
 .slot {
     width: 120px;
@@ -93,15 +115,6 @@ body {
     background-color: rgba(255,255,255,0.3);
 }
 
-.choice-slot {
-    cursor: pointer;
-}
-
-.choice-slot:hover {
-    transform: scale(1.08);
-    border-color: var(--primary-color);
-}
-
 .slot.active {
     border-style: solid;
     border-color: #FFD700;
@@ -113,9 +126,8 @@ body {
     width: 95%;
     height: 95%;
     object-fit: contain;
-    transition: opacity 0.3s ease;
-    -webkit-user-drag: none; /* Предотвратява влаченето на картинки */
-    user-select: none; /* Предотвратява селектирането на картинки */
+    -webkit-user-drag: none;
+    user-select: none;
 }
 
 .slot.filled {
@@ -129,7 +141,7 @@ body {
 }
 
 #winScreen {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background-color: rgba(0,0,0,0.7);
     display: flex;
@@ -169,11 +181,12 @@ body {
 
 @media (max-width: 768px) {
     .slot { width: 100px; height: 100px; }
+    #choiceZone img { height: 80px; width: 80px; }
 }
 
 @media (max-width: 480px) {
     #gameTitle { font-size: 2.5rem; }
     .slot { width: 80px; height: 80px; }
-    #choiceZone { gap: 10px; }
+    #choiceZone img { height: 70px; width: 70px; }
     #winMessage { font-size: 4rem; }
 }
