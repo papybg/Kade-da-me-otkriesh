@@ -11,9 +11,13 @@
 
     <h1 id="gameTitle">Къде да ме<br>ОТКРИЕШ?</h1>
 
-    <div id="gameMessage">Избери картинка за светещия слот!</div>
+    <div id="gameMessage">Натисни "СТАРТ", за да светне квадратче!</div>
 
     <div id="gameContainer">
+        <div id="startTurnContainer">
+            <button id="startTurnBtn" class="game-btn">СТАРТ</button>
+        </div>
+
         <div id="dropZone" class="game-section">
             </div>
         <div id="choiceZone" class="game-section">
@@ -24,6 +28,9 @@
         <div id="winMessage">БРАВО!</div>
         <button id="playAgainBtn" class="game-btn">Играй отново</button>
     </div>
+
+    <audio id="bravoAudio" src="audio/bravo_uily.wav"></audio>
+    <audio id="opitaiPakAudio" src="audio/opitaj_pak.wav"></audio>
 
     <script src="script.js"></script>
 </body>
