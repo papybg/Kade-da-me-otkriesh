@@ -1,0 +1,35 @@
+{
+    "превозни_средства": [
+        { "id": "bus", "name": "Автобус", "image": "images/cars/bus.jpg", "sound": "audio/cars/bus.mp3" },
+        { "id": "airplane", "name": "Самолет", "image": "images/cars/airplane.jpg", "sound": "audio/cars/airplane.mp3" },
+        { "id": "firetruck", "name": "Пожарна", "image": "images/cars/firetruck.jpg", "sound": "audio/cars/firetruck.mp3" },
+        { "id": "train", "name": "Влак", "image": "images/cars/train.jpg", "sound": "audio/cars/train.mp3" },
+        { "id": "truck", "name": "Камион", "image": "images/cars/truck.jpg", "sound": "audio/cars/truck-horn.mp3" }
+    ],
+    "animals": [
+        { "id": "dog", "name": "Куче", "image": "images/animals/dog.jpg", "sound": "audio/animals/dog.mp3" },
+        { "id": "cat", "name": "Котка", "image": "images/animals/cat.jpg", "sound": "audio/animals/cat.mp3" },
+        { "id": "lion", "name": "Лъв", "image": "images/animals/lion.jpg", "sound": "audio/animals/Leon.mp3" },
+        { "id": "elephant", "name": "Слон", "image": "images/animals/elephant.jpg", "sound": "audio/animals/elephant.mp3" },
+        { "id": "monkey", "name": "Маймуна", "image": "images/animals/monkey.jpg", "sound": "audio/animals/monkey.mp3" },
+        { "id": "tiger", "name": "Тигър", "image": "images/animals/tiger.png", "sound": "audio/animals/tiger.mp3" },
+        { "id": "wolf", "name": "Вълк", "image": "images/animals/wolf.png", "sound": "audio/animals/wolf.mp3" }
+    ],
+    "flowers": [
+        { "id": "rose", "name": "Роза", "image": "images/flowers/rose.jpg", "sound": "audio/flowers/tada_sound.wav" },
+        { "id": "tulip", "name": "Лале", "image": "images/flowers/tulip.jpg", "sound": "audio/flowers/tada_sound.wav" },
+        { "id": "lily", "name": "Лилия", "image": "images/flowers/lily.jpg", "sound": "audio/flowers/tada_sound.wav" },
+        { "id": "daisy", "name": "Маргаритка", "image": "images/flowers/daisy.jpg", "sound": "audio/flowers/tada_sound.wav" },
+        { "id": "sunflower", "name": "Слънчоглед", "image": "images/flowers/sunflower.jpg", "sound": "audio/flowers/tada_sound.wav" }
+    ],
+    "птици": [
+        { "id": "chicken", "name": "Кокошка", "image": "images/birds/chicken.png", "sound": "audio/birds/chicken.mp3" },
+        { "id": "crow", "name": "Врана", "image": "images/birds/crow.png", "sound": "audio/birds/crow.mp3" },
+        { "id": "duck", "name": "Патица", "image": "images/birds/duck.png", "sound": "audio/birds/duck.mp3" },
+        { "id": "dove", "name": "Гълъб", "image": "images/birds/dove.png", "sound": "audio/birds/dove.mp3" },
+        { "id": "falcon", "name": "Сокол", "image": "images/birds/falcon.png", "sound": "audio/birds/falcon.mp3" },
+        { "id": "robin", "name": "Червеношийка", "image": "images/birds/robin.png", "sound": "audio/birds/robin.mp3" },
+        { "id": "rooster", "name": "Петел", "image": "images/birds/rooster.png", "sound": "audio/birds/rooster.mp3" },
+        { "id": "turkey", "name": "Пуйка", "image": "images/birds/turkey.png", "sound": "audio/birds/turkey.mp3" }
+    ]
+}
