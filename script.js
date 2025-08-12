@@ -5,21 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameMessageEl = document.getElementById('gameMessage');
     const winScreenEl = document.getElementById('winScreen');
     const playAgainBtn = document.getElementById('playAgainBtn');
-    const startTurnBtn = document.getElementById('startTurnBtn'); // НОВ бутон
+    const startTurnBtn = document.getElementById('startTurnBtn');
+    const highlighterEl = document.getElementById('slotHighlighter');
     const bodyEl = document.body;
-    const bravoAudio = document.getElementById('bravoAudio'); // НОВ начин за достъп
-    const opitaiPakAudio = document.getElementById('opitaiPakAudio'); // НОВ начин за достъп
-
+    const bravoAudio = document.getElementById('bravoAudio');
+    const opitaiPakAudio = document.getElementById('opitaiPakAudio');
 
     // Състояние на играта
     let allItems = [];
     let currentLevelData = {};
     let choicePool = [];
-    let activeDropSlot = null;
+    let activeSlotData = null; // Вече пазим данните за слота, не самия елемент
     let filledSlotsCount = 0;
-    let isTurnActive = false; // НОВО: Следи дали има активен ход
+    let isTurnActive = false;
+    let availableSlots = []; // Списък с незапълнените слотове
 
-    // Функция за разбъркване на масив
+    // Функция за разбъркване
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -34,40 +35,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const levels = await levelsResponse.json();
         currentLevelData = levels.find(l => l.level === levelNumber);
 
-        if (!currentLevelData) {
-            console.error(`Ниво ${levelNumber} не е намерено в levels.json`);
-            return;
-        }
+        if (!currentLevelData) { return; }
 
-        // Нулиране на състоянието
         filledSlotsCount = 0;
         isTurnActive = false;
         winScreenEl.classList.add('hidden');
         startTurnBtn.classList.remove('hidden');
         gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне квадратче!';
         bodyEl.style.backgroundImage = `url('${currentLevelData.background}')`;
+        dropZoneEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; // Изчистваме старите картинки и оставяме маркера
+        
+        availableSlots = [...currentLevelData.slots]; // Копираме слотовете за текущата игра
 
-        // Създаване на горните слотове
-        dropZoneEl.innerHTML = '';
-        currentLevelData.slots.forEach((slotData, i) => {
-            const slot = document.createElement('div');
-            slot.classList.add('slot');
-            slot.dataset.index = slotData.index;
-            dropZoneEl.appendChild(slot);
-        });
-
-        // Генериране на избора долу
         generateChoicePool();
         renderChoiceZone();
     }
 
+    // Генериране на картинките за избор
     function generateChoicePool() {
         const correctItemsForLevel = new Set();
         currentLevelData.slots.forEach(slot => {
             const itemsForSlot = allItems.filter(item => item.index === slot.index);
             if (itemsForSlot.length > 0) {
-                // Тази логика трябва да се подобри, за да не избира дубликати
-                // За сега ще работи за пробата
                 const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
                 correctItemsForLevel.add(randomItem);
             }
@@ -77,12 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const distractorItems = allItems.filter(item => 
             !correctItemsArray.some(correct => correct.id === item.id)
         );
-        const shuffledDistractors = shuffleArray(distractorItems);
-        const finalDistractors = shuffledDistractors.slice(0, currentLevelData.distractors);
-
+        const finalDistractors = shuffleArray(distractorItems).slice(0, currentLevelData.distractors);
         choicePool = shuffleArray([...correctItemsArray, ...finalDistractors]);
     }
     
+    // Показване на картинките за избор
     function renderChoiceZone() {
         choiceZoneEl.innerHTML = '';
         choicePool.forEach(item => {
@@ -90,47 +78,62 @@ document.addEventListener('DOMContentLoaded', () => {
             img.src = item.image;
             img.alt = item.name;
             img.dataset.index = item.index;
-            img.dataset.id = item.id;
             img.addEventListener('click', () => handleChoiceClick(item, img));
             choiceZoneEl.appendChild(img);
         });
     }
     
-    // НОВА ФУНКЦИЯ: Започва нов ход
+    // Начало на ход
     function startNewTurn() {
-        if(isTurnActive) return; // Предпазва от двойно натискане
+        if (isTurnActive) return;
         isTurnActive = true;
         startTurnBtn.classList.add('hidden');
         activateNextSlot();
     }
 
+    // Активиране на следващия празен слот
     function activateNextSlot() {
-        if (activeDropSlot) {
-            activeDropSlot.classList.remove('active');
-        }
-        
-        const emptySlots = Array.from(dropZoneEl.children).filter(slot => !slot.classList.contains('filled'));
-        
-        if (emptySlots.length > 0) {
-            activeDropSlot = emptySlots[Math.floor(Math.random() * emptySlots.length)];
-            activeDropSlot.classList.add('active');
+        if (availableSlots.length > 0) {
+            // Взимаме случаен слот от оставащите
+            const randomIndex = Math.floor(Math.random() * availableSlots.length);
+            activeSlotData = availableSlots[randomIndex];
+            
+            // Позиционираме и показваме маркера
+            const highlighter = document.getElementById('slotHighlighter');
+            highlighter.style.top = activeSlotData.position.top;
+            highlighter.style.left = activeSlotData.position.left;
+            highlighter.classList.remove('hidden');
+
             gameMessageEl.textContent = 'Коя картинка е за тук?';
         }
     }
 
+    // Клик върху картинка за избор
     function handleChoiceClick(chosenItem, chosenImgElement) {
         if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
 
-        if (chosenItem.index === activeDropSlot.dataset.index) {
+        if (chosenItem.index === activeSlotData.index) {
             // ПРАВИЛЕН ИЗБОР
-            isTurnActive = false; // Деактивираме хода, докато тече анимацията
+            isTurnActive = false;
             bravoAudio.play();
             
-            activeDropSlot.innerHTML = `<img src="${chosenItem.image}" alt="${chosenItem.name}">`;
-            activeDropSlot.classList.add('filled');
-            activeDropSlot.classList.remove('active');
+            // Създаваме и позиционираме поставената картинка
+            const placedImg = document.createElement('img');
+            placedImg.src = chosenItem.image;
+            placedImg.alt = chosenItem.name;
+            placedImg.classList.add('placed-image');
+            placedImg.style.top = activeSlotData.position.top;
+            placedImg.style.left = activeSlotData.position.left;
+            dropZoneEl.appendChild(placedImg);
+
+            // Скриваме маркера
+            document.getElementById('slotHighlighter').classList.add('hidden');
             
-            chosenImgElement.classList.add('used'); // "Почерняме" картинката
+            // Маркираме използваната картинка
+            chosenImgElement.classList.add('used');
+            
+            // Премахваме слота от списъка с достъпни
+            availableSlots = availableSlots.filter(slot => slot !== activeSlotData);
             
             filledSlotsCount++;
             
@@ -141,11 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameMessageEl.textContent = 'Супер си!';
                 }, 1000);
             } else {
-                // Подготвяме за следващия ход
                 startTurnBtn.classList.remove('hidden');
                 gameMessageEl.textContent = 'Натисни "СТАРТ" за следващия квадрат!';
             }
-
         } else {
             // ГРЕШЕН ИЗБОР
             opitaiPakAudio.play();
@@ -153,19 +154,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Основна функция за инициализация
+    // Основна функция
     async function initializeApp() {
         try {
             const response = await fetch('themes.json');
             allItems = (await response.json()).allItems;
             
             playAgainBtn.addEventListener('click', () => loadLevel(1));
-            startTurnBtn.addEventListener('click', startNewTurn); // Добавяме listener за новия бутон
+            startTurnBtn.addEventListener('click', startNewTurn);
 
             loadLevel(1);
         } catch (error) {
             console.error("Неуспешно зареждане на данните:", error);
-            document.body.innerHTML = `<h1 style="color:red">Грешка при зареждане на играта. Проверете файловете themes.json и levels.json!</h1>`;
+            document.body.innerHTML = `<h1 style="color:red">Грешка: Проверете файловете themes.json и levels.json!</h1>`;
         }
     }
 
