@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Зареждане на ниво
     async function loadLevel(levelNumber) {
-        // Зареждане на всички нива
         const levelsResponse = await fetch('levels.json');
         const levels = await levelsResponse.json();
         currentLevelData = levels.find(l => l.level === levelNumber);
@@ -35,72 +34,58 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Нулиране
         filledSlotsCount = 0;
         winScreenEl.classList.add('hidden');
         bodyEl.style.backgroundImage = `url('${currentLevelData.background}')`;
 
-        // 1. Създаваме горните слотове
         dropZoneEl.innerHTML = '';
         currentLevelData.slots.forEach((slotData, i) => {
             const slot = document.createElement('div');
             slot.classList.add('slot');
             slot.dataset.index = slotData.index;
-            slot.dataset.id = `drop-${i}`;
             dropZoneEl.appendChild(slot);
         });
 
-        // 2. Генерираме избора долу
         generateChoicePool();
         renderChoiceZone();
-
-        // 3. Започваме първия ход
         activateNextSlot();
     }
 
-    // Генериране на картинките за избор
     function generateChoicePool() {
-        // Взимаме всички ПРАВИЛНИ картинки за нивото
-        const correctItems = [];
+        const correctItems = new Set();
         currentLevelData.slots.forEach(slot => {
             const itemsForSlot = allItems.filter(item => item.index === slot.index);
             if (itemsForSlot.length > 0) {
                 const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
-                correctItems.push(randomItem);
+                correctItems.add(randomItem);
             }
         });
 
-        // Взимаме РАЗСЕЙВАЩИ картинки
+        const correctItemsArray = Array.from(correctItems);
         const distractorItems = allItems.filter(item => 
-            !correctItems.some(correct => correct.id === item.id)
+            !correctItemsArray.some(correct => correct.id === item.id)
         );
         const shuffledDistractors = shuffleArray(distractorItems);
         const finalDistractors = shuffledDistractors.slice(0, currentLevelData.distractors);
 
-        // Обединяваме и разбъркваме
-        choicePool = shuffleArray([...correctItems, ...finalDistractors]);
+        choicePool = shuffleArray([...correctItemsArray, ...finalDistractors]);
     }
     
-    // Показване на картинките за избор
+    // Показване на картинките за избор в лента
     function renderChoiceZone() {
         choiceZoneEl.innerHTML = '';
         choicePool.forEach(item => {
-            const slot = document.createElement('div');
-            slot.classList.add('slot', 'choice-slot');
-            slot.dataset.index = item.index;
-            slot.dataset.id = item.id;
-            
+            // ПРОМЯНАТА Е ТУК: Създаваме директно <img>, а не <div>
             const img = document.createElement('img');
             img.src = item.image;
             img.alt = item.name;
-            slot.appendChild(img);
-
-            slot.addEventListener('click', () => handleChoiceClick(item, slot));
-            choiceZoneEl.appendChild(slot);
+            img.dataset.index = item.index;
+            img.dataset.id = item.id;
+            img.addEventListener('click', () => handleChoiceClick(item, img));
+            choiceZoneEl.appendChild(img);
         });
     }
 
-    // Активиране на следващия празен слот горе
     function activateNextSlot() {
         if (activeDropSlot) {
             activeDropSlot.classList.remove('active');
@@ -111,46 +96,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (emptySlots.length > 0) {
             activeDropSlot = emptySlots[Math.floor(Math.random() * emptySlots.length)];
             activeDropSlot.classList.add('active');
-            gameMessageEl.textContent = 'Къде трябва да отиде тази картинка?';
+            gameMessageEl.textContent = 'Избери картинка за светещия квадрат!';
         } else {
-             // Няма повече празни слотове = Победа!
              winScreenEl.classList.remove('hidden');
         }
     }
 
-    // При клик на картинка отдолу
-    function handleChoiceClick(chosenItem, chosenSlotElement) {
+    function handleChoiceClick(chosenItem, chosenImgElement) {
         if (!activeDropSlot) return;
 
-        // Проверка дали индексът на картинката съвпада с индекса на активния слот
         if (chosenItem.index === activeDropSlot.dataset.index) {
-            // ПРАВИЛЕН ИЗБОР
             activeDropSlot.innerHTML = `<img src="${chosenItem.image}" alt="${chosenItem.name}">`;
             activeDropSlot.classList.add('filled');
             activeDropSlot.classList.remove('active');
-
-            chosenSlotElement.remove(); // Премахваме картинката от избора
+            
+            chosenImgElement.remove();
             
             filledSlotsCount++;
             
-            // Проверка за победа
             if (filledSlotsCount === currentLevelData.slots.length) {
-                winScreenEl.classList.remove('hidden');
-                gameMessageEl.textContent = 'Супер си!';
+                setTimeout(() => {
+                    winScreenEl.classList.remove('hidden');
+                    gameMessageEl.textContent = 'Супер си!';
+                }, 500);
             } else {
-                activateNextSlot(); // Активираме следващия празен слот
+                activateNextSlot();
             }
 
         } else {
-            // ГРЕШЕН ИЗБОР
             gameMessageEl.textContent = 'Опитай пак!';
-            // Може да добавим лека анимация за грешка
-            chosenSlotElement.style.animation = 'shake 0.5s';
-            setTimeout(() => { chosenSlotElement.style.animation = ''; }, 500);
+            chosenImgElement.style.animation = 'shake 0.5s';
+            setTimeout(() => { chosenImgElement.style.animation = ''; }, 500);
         }
     }
 
-    // Основна функция за инициализация
     async function initializeApp() {
         try {
             const response = await fetch('themes.json');
