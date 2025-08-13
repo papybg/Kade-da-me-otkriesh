@@ -1,0 +1,13 @@
+{
+  "name": "Зелена долина",
+  "background": "background.png",
+  "slots": [
+    { "position": { "top": "10%", "left": "5%" }, "diameter": "10%", "index": ["s"] },
+    { "position": { "top": "20%", "left": "80%" }, "diameter": "10%", "index": ["s"] },
+    { "position": { "top": "50%", "left": "90%" }, "diameter": "10%", "index": ["p", "h"] },
+    { "position": { "top": "70%", "left": "40%" }, "diameter": "10%", "index": ["i"] },
+    { "position": { "top": "80%", "left": "60%" }, "diameter": "10%", "index": ["r"] },
+    { "position": { "top": "90%", "left": "90%" }, "diameter": "10%", "index": ["p"] }
+  ],
+  "distractors": 3
+}
