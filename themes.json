@@ -1,12 +1,12 @@
 {
   "allItems": [
-    { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "sound": "", "index": "p" },
-    { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "sound": "", "index": "p" },
-    { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "sound": "", "index": "r" },
-    { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "sound": "", "index": "r" },
-    { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "sound": "", "index": "s" },
-    { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "sound": "", "index": "s" },
-    { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "sound": "", "index": "h" },
-    { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "sound": "", "index": "i" }
+    { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "index": "p" },
+    { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "index": "p" },
+    { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "index": "r" },
+    { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "index": "r" },
+    { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "index": "s" },
+    { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "index": "s" },
+    { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "index": "h" },
+    { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "index": "i" }
   ]
 }
