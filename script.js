@@ -1,76 +1,75 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ЕЛЕМЕНТИТЕ ОСТАВАТ СЪЩИТЕ ---
-    const bodyEl = document.body;
-    const bravoAudio = document.getElementById('bravoAudio');
-    const opitaiPakAudio = document.getElementById('opitaiPakAudio');
+    console.log("СКРИПТ: DOM е зареден. Започвам.");
+
+    // --- ЕЛЕМЕНТИ ---
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
-    const soundBtn = document.getElementById('soundBtn');
-    const gameScreenEl = document.getElementById('gameScreen');
-    const dropZoneEl = document.getElementById('dropZone');
-    const choiceZoneEl = document.getElementById('choiceZone');
-    const gameMessageEl = document.getElementById('gameMessage');
-    const gameTitleEl = document.getElementById('gameTitle');
-    const winScreenEl = document.getElementById('winScreen');
-    const playAgainBtn = document.getElementById('playAgainBtn');
-    const startTurnBtn = document.getElementById('startTurnBtn');
-    const backToMenuBtn = document.getElementById('backToMenuBtn');
+    // ... останалите елементи ...
 
-    // --- СЪСТОЯНИЕТО НА ИГРАТА ОСТАВА СЪЩОТО ---
+    // --- СЪСТОЯНИЕ ---
     let allItems = [];
-    let currentPortalData = {};
-    let currentLayoutId = null;
-    let isTurnActive = false;
-    let isMuted = false;
+    // ... останалото състояние ...
 
     // --- ОСНОВНА ЛОГИКА ---
-
     async function initializeApp() {
+        console.log("СКРИПТ: initializeApp() се изпълнява...");
         try {
             const [themesResponse, portalsResponse] = await Promise.all([
                 fetch('themes.json'),
                 fetch('portals.json')
             ]);
+
+            console.log("СКРИПТ: Файловете са изтеглени.");
+
             if (!themesResponse.ok || !portalsResponse.ok) {
                 throw new Error('Един от конфигурационните файлове не можа да бъде зареден.');
             }
+
             const themesData = await themesResponse.json();
             const portalsData = await portalsResponse.json();
+
             allItems = themesData.allItems;
+            
+            console.log("СКРИПТ: Данните са обработени. Подавам към renderPortals:", portalsData.portals);
             renderPortals(portalsData.portals);
+
             showStartScreen();
+            console.log("СКРИПТ: Стартовият екран би трябвало да е показан.");
+
         } catch (error) {
-            console.error("Грешка при зареждане на конфигурационни файлове:", error);
-            document.body.innerHTML = `<h1 style="color:red">Грешка при зареждане. Проверете файловете!</h1>`;
+            console.error("ГРЕШКА В initializeApp:", error);
+            document.body.innerHTML = `<h1 style="color:red">Грешка при зареждане. Проверете конзолата!</h1>`;
         }
     }
 
-    // --- ТУК Е КОРЕКЦИЯТА ---
     function renderPortals(portals) {
-        portalContainerEl.innerHTML = ''; // Изчистваме контейнера
+        console.log("СКРИПТ: renderPortals() се изпълнява...");
+        if (!portalContainerEl) {
+            console.error("ГРЕШКА: Не е намерен portalContainerEl!");
+            return;
+        }
+        portalContainerEl.innerHTML = '';
+        
+        if (!portals || portals.length === 0) {
+            console.warn("ВНИМАНИЕ: Масивът с портали е празен или невалиден.");
+            return;
+        }
+
         portals.forEach(portal => {
-            // Създаваме елементите един по един, вместо с innerHTML
+            console.log("СКРИПТ: Създавам портал за:", portal.name);
             const portalEl = document.createElement('div');
             portalEl.className = 'portal';
-
-            const imgEl = document.createElement('img');
-            imgEl.src = portal.icon;
-            imgEl.alt = portal.name;
-
-            const nameEl = document.createElement('div');
-            nameEl.className = 'portal-name';
-            nameEl.textContent = portal.name;
-
-            portalEl.appendChild(imgEl);
-            portalEl.appendChild(nameEl);
-
+            portalEl.innerHTML = `
+                <img src="${portal.icon}" alt="${portal.name}">
+                <div class="portal-name">${portal.name}</div>
+            `;
             portalEl.addEventListener('click', () => startGame(portal));
             portalContainerEl.appendChild(portalEl);
         });
+        console.log("СКРИПТ: renderPortals() приключи.");
     }
 
-    // ... останалият код остава без промяна ...
-    
+    // ... останалите функции остават същите ...
     function startGame(portal) { /* ... */ }
     async function loadLayout(layoutId) { /* ... */ }
     function generateChoicePool(levelData) { /* ... */ }
@@ -81,11 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function showGameScreen() { /* ... */ }
     function toggleMute() { /* ... */ }
     
-    playAgainBtn.addEventListener('click', loadNextLayout);
-    backToMenuBtn.addEventListener('click', showStartScreen);
-    soundBtn.addEventListener('click', toggleMute);
+    // ... Event Listeners ...
 
+    // --- Старт на приложението ---
     initializeApp();
-    
-    function shuffleArray(array) { /* ... */ }
 });
