@@ -1,11 +1,12 @@
 {
+  "name": "Зелена долина",
+  "background": "background.png",
   "slots": [
-    { "position": { "top": "10%", "left": "5%" }, "diameter": "10%", "index": ["s"] },
-    { "position": { "top": "20%", "left": "80%" }, "diameter": "10%", "index": ["s"] },
-    { "position": { "top": "50%", "left": "90%" }, "diameter": "10%", "index": ["p", "h"] },
-    { "position": { "top": "70%", "left": "40%" }, "diameter": "10%", "index": ["i"] },
-    { "position": { "top": "80%", "left": "60%" }, "diameter": "10%", "index": ["r"] },
-    { "position": { "top": "90%", "left": "90%" }, "diameter": "10%", "index": ["p"] }
+    { "position": { "top": "25%", "left": "78%" }, "diameter": "8%", "index": ["s"] },
+    { "position": { "top": "68%", "left": "18%" }, "diameter": "10%", "index": ["p"] },
+    { "position": { "top": "65%", "left": "38%" }, "diameter": "10%", "index": ["i"] },
+    { "position": { "top": "66%", "left": "85%" }, "diameter": "10%", "index": ["h", "p"] },
+    { "position": { "top": "45%", "left": "52%" }, "diameter": "8%", "index": ["r"] }
   ],
   "distractors": 3
 }
