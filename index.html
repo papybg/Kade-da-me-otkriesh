@@ -3,31 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Къде да ме откриеш?</title>
+    <title>Детски Игри</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="images/icon.png">
 </head>
 <body>
 
-    <h1 id="gameTitle">Къде да ме<br>ОТКРИЕШ?</h1>
-
-    <div id="gameMessage">Натисни "СТАРТ", за да светне квадратче!</div>
-
-    <div id="gameContainer">
-        <div id="startTurnContainer">
-            <button id="startTurnBtn" class="game-btn">СТАРТ</button>
-        </div>
-
-        <div id="dropZone" class="game-section">
-            <div id="slotHighlighter" class="hidden"></div>
-        </div>
-        <div id="choiceZone">
+    <div id="startScreen">
+        <h1 id="startTitle">Къде искаш да играеш?</h1>
+        <div id="portalContainer">
             </div>
     </div>
-    
-    <div id="winScreen" class="hidden">
-        <div id="winMessage">БРАВО!</div>
-        <button id="playAgainBtn" class="game-btn">Играй отново</button>
+
+    <div id="gameScreen" class="hidden">
+        <h1 id="gameTitle"></h1>
+        <div id="gameMessage">Натисни "СТАРТ", за да светне квадратче!</div>
+        <div id="gameContainer">
+            <div id="startTurnContainer">
+                <button id="startTurnBtn" class="game-btn">СТАРТ</button>
+            </div>
+            <div id="dropZone" class="game-section">
+                <div id="slotHighlighter" class="hidden"></div>
+            </div>
+            <div id="choiceZone"></div>
+        </div>
+        <div id="winScreen" class="hidden">
+            <div id="winMessage">БРАВО!</div>
+            <button id="playAgainBtn" class="game-btn">Играй отново</button>
+        </div>
     </div>
 
     <audio id="bravoAudio" src="audio/bravo_uily.wav"></audio>
