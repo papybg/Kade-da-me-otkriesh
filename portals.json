@@ -3,8 +3,9 @@
     {
       "id": "dolina",
       "name": "Зелена долина",
-      "icon": "images/portals/icon_dolina.png",
-      "levelFile": "levels/dolina/level.json"
+      "icon": "assets/icons/portal_dolina.png",
+      "background": "assets/backgrounds/dolina.png",
+      "layouts": ["d1", "d2", "d3"]
     }
   ]
 }
