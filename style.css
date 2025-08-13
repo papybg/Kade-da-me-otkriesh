@@ -1,65 +1,38 @@
-:root { /* ... същите променливи ... */ }
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #198754;
+    --slot-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
 
 body {
     font-family: 'Comic Sans MS', cursive, sans-serif;
     margin: 0;
     text-align: center;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden; /* Предотвратява скролиране */
+    min-height: 100vh;
+    box-sizing: border-box;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    transition: background-image 0.5s ease-in-out;
     background-color: #2c3e50;
     color: white;
 }
 
-/* --- НОВ ЕКРАН: "ЗАВЪРТИ УСТРОЙСТВОТО" --- */
-#rotateDeviceWarning {
-    display: none; /* По подразбиране е скрит */
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    background-color: #2c3e50;
-    font-size: 1.5rem;
+.hidden { display: none !important; }
+
+/* --- СТАРТОВ ЕКРАН --- */
+#startScreen { padding: 20px; box-sizing: border-box; }
+#startScreenControls {
     position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2000;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
 }
-.rotate-icon {
-    font-size: 5rem;
-    animation: spin 2s linear infinite;
+.control-btn {
+    width: 50px; height: 50px; font-size: 1.8rem;
+    border-radius: 50%; border: 2px solid white;
+    background-color: rgba(0,0,0,0.4);
+    color: white; cursor: pointer;
 }
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Медия заявка, която показва екрана само в портретен режим */
-@media (orientation: portrait) {
-    #rotateDeviceWarning {
-        display: flex;
-    }
-    #appContainer {
-        display: none;
-    }
-}
-/* --- КРАЙ НА НОВИТЕ СТИЛОВЕ --- */
-
-#appContainer {
-    width: 100%;
-    height: 100%;
-}
-
-/* ... останалите стилове остават същите, както в предходната версия ... */
-
-#startScreen { padding: 20px; box-sizing: border-box; /* ... */ }
-#startTitle { font-size: 3rem; text-shadow: 2px 2px 4px #000; margin-top: 60px; }
-#portalContainer { /* ... */ }
-.portal { /* ... */ }
-.portal img { /* ... */ }
-.portal-name { /* ... */ }
-
-#gameScreen { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; padding: 20px; box-sizing: border-box; }
-#gameScreen.visible { display: flex; }
-/* ... и така нататък за всички останали стилове ... */
+#startTitle { font-size: 3rem; text-shadow: 2px 2px 4px #000; margin-top:
