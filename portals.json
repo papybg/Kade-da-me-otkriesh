@@ -1,0 +1,10 @@
+{
+  "portals": [
+    {
+      "id": "dolina",
+      "name": "Зелена долина",
+      "icon": "images/portals/icon_dolina.png",
+      "levelFile": "levels/dolina/level.json"
+    }
+  ]
+}
