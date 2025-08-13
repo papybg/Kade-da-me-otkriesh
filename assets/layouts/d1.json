@@ -1,13 +1,11 @@
 {
-  "name": "Зелена долина",
-  "background": "background.png",
+  "name": "Пъзел 1",
   "slots": [
     { "position": { "top": "20%", "left": "15%" }, "diameter": "20%", "index": ["s"] },
     { "position": { "top": "30%", "left": "80%" }, "diameter": "20%", "index": ["s"] },
     { "position": { "top": "55%", "left": "88%" }, "diameter": "20%", "index": ["p", "h"] },
     { "position": { "top": "75%", "left": "40%" }, "diameter": "20%", "index": ["i"] },
-    { "position": { "top": "70%", "left": "65%" }, "diameter": "20%", "index": ["r"] },
-    { "position": { "top": "85%", "left": "15%" }, "diameter": "20%", "index": ["p"] }
+    { "position": { "top": "70%", "left": "65%" }, "diameter": "20%", "index": ["r"] }
   ],
   "distractors": 3
 }
