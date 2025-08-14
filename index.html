@@ -7,35 +7,28 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="startScreen" class="screen">
-        <div class="controls-container">
-            <button id="languageBtn" class="control-btn" title="Език">🌐</button>
-            <button id="settingsBtn" class="control-btn" title="Настройки">⚙️</button>
-            <button id="soundBtn" class="control-btn" title="Звук">🔊</button>
-        </div>
+    <div id="startScreen">
         <h1 class="title">Къде искаш да играеш?</h1>
         <div id="portalContainer"></div>
     </div>
-
-    <div id="gameScreen" class="screen hidden">
+    <div id="gameScreen" class="hidden">
         <button id="backToMenuBtn" class="top-btn" title="Обратно към менюто">☰</button>
         <h1 id="gameTitle" class="title"></h1>
-        <div id="gameMessage" class="message"></div>
+        <div id="gameMessage"></div>
         <div id="gameContainer">
             <div id="startTurnContainer">
                 <button id="startTurnBtn" class="game-btn">СТАРТ</button>
             </div>
-            <div id="dropZone" class="drop-zone">
-                <div id="slotHighlighter" class="slot-highlight hidden"></div>
+            <div id="dropZone">
+                <div id="slotHighlighter" class="hidden"></div>
             </div>
-            <div id="choiceZone" class="choice-zone"></div>
+            <div id="choiceZone"></div>
         </div>
-        <div id="winScreen" class="win-screen hidden">
-            <div id="winMessage" class="win-message">БРАВО!</div>
+        <div id="winScreen" class="hidden">
+            <div id="winMessage">БРАВО!</div>
             <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
-
     <audio id="bravoAudio" src="audio/flowers/bravo_uily.wav"></audio>
     <audio id="opitaiPakAudio" src="audio/flowers/opitaj_pak.wav"></audio>
     <script src="script.js"></script>
