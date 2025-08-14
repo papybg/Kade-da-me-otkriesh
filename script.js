@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ЕЛЕМЕНТИ ---
+    // --- ЕЛЕМЕНТИТЕ ОСТАВАТ СЪЩИТЕ ---
     const bodyEl = document.body;
     const bravoAudio = document.getElementById('bravoAudio');
     const opitaiPakAudio = document.getElementById('opitaiPakAudio');
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
+    const soundBtn = document.getElementById('soundBtn');
     const gameScreenEl = document.getElementById('gameScreen');
     const dropZoneEl = document.getElementById('dropZone');
     const choiceZoneEl = document.getElementById('choiceZone');
@@ -20,18 +21,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPortalData = {};
     let currentLayoutId = null;
     let isTurnActive = false;
+    let isMuted = false;
     let availableSlots = [];
     let activeSlotData = null;
 
     // --- ОСНОВНА ЛОГИКА ---
+
     async function initializeApp() {
         try {
             const [themesResponse, portalsResponse] = await Promise.all([
                 fetch('themes.json'),
                 fetch('portals.json')
             ]);
-            if (!themesResponse.ok || !portalsResponse.ok) throw new Error('Config files not found');
-            
+            if (!themesResponse.ok || !portalsResponse.ok) {
+                throw new Error('Конфигурационните файлове не са намерени.');
+            }
             const themesData = await themesResponse.json();
             const portalsData = await portalsResponse.json();
             allItems = themesData.allItems;
@@ -40,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
             showStartScreen();
         } catch (error) {
-            console.error("Initialization Error:", error);
+            console.error("Грешка при инициализация:", error);
             document.body.innerHTML = `<h1>Грешка при зареждане. Проверете конзолата (F12).</h1>`;
         }
     }
@@ -75,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
             bodyEl.style.backgroundImage = `url('${currentPortalData.background}')`;
             gameTitleEl.textContent = currentPortalData.name;
-            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
+            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="slot-highlight hidden"></div>'; 
             
             availableSlots = [...levelData.slots];
             const choicePool = generateChoicePool(levelData);
@@ -85,16 +89,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- ТУК Е КОРЕКЦИЯТА ЗА БРОЯ НА КАРТИНКИТЕ ---
     function generateChoicePool(levelData) {
         const correctItemsArray = [];
+        // За всеки слот в нивото, намираме по една подходяща картинка
         levelData.slots.forEach(slot => {
             const itemsForSlot = allItems.filter(item => slot.index.includes(item.index));
             if (itemsForSlot.length > 0) {
+                // Избираме случайна от възможните за този слот
                 const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
                 correctItemsArray.push(randomItem);
             }
         });
-        const distractorItems = allItems.filter(item => !correctItemsArray.some(correct => correct.id === item.id));
+
+        // Ако по някаква причина броят не е точен, добавяме още, за да гарантираме 6
+        while (correctItemsArray.length < levelData.slots.length) {
+             const randomItem = allItems[Math.floor(Math.random() * allItems.length)];
+             if (!correctItemsArray.includes(randomItem)) {
+                 correctItemsArray.push(randomItem);
+             }
+        }
+
+        const distractorItems = allItems.filter(item => 
+            !correctItemsArray.some(correct => correct.id === item.id)
+        );
         const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
         return shuffleArray([...correctItemsArray, ...finalDistractors]);
     }
@@ -137,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
             isTurnActive = false;
             bravoAudio.play();
             
-            const placedImg = document.createElement('img');
-            placedImg.src = chosenItem.image;
+            const placedImg = document.createElement('div');
             placedImg.className = 'placed-image';
+            placedImg.innerHTML = `<img src="${chosenItem.image}" alt="${chosenItem.name}">`;
             placedImg.style.top = activeSlotData.position.top;
             placedImg.style.left = activeSlotData.position.left;
             placedImg.style.width = activeSlotData.diameter;
@@ -192,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         playAgainBtn.addEventListener('click', loadNextLayout);
         backToMenuBtn.addEventListener('click', showStartScreen);
         startTurnBtn.addEventListener('click', startNewTurn);
-        // Sound button listener can be added here if the button is used
     }
 
     initializeApp();
