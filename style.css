@@ -3,81 +3,65 @@
     --success-color: #198754;
     --slot-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
-body {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+html, body {
     margin: 0;
-    text-align: center;
-    height: 100vh;
-    box-sizing: border-box;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    transition: background-image 0.5s ease-in-out;
-    background-color: #2c3e50;
-    color: white;
-    overflow: hidden;
-}
-.hidden { display: none !important; }
-
-/* --- ЕКРАНИ --- */
-#startScreen, #gameScreen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 0;
     width: 100%;
     height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
+    overflow: hidden;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background-color: #2c3e50;
+    color: white;
 }
-#gameScreen { display: none; }
-#gameScreen.visible { display: flex; }
+.hidden { display: none !important; }
+.title { text-shadow: 2px 2px 4px #000; }
 
-/* --- ПОРТАЛИ --- */
-.title { font-size: 3rem; text-shadow: 2px 2px 4px #000; }
-#portalContainer { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; margin-top: 30px; }
+/* --- Екран за завъртане --- */
+#rotateDeviceWarning { display: none; }
+@media only screen and (orientation: portrait) and (max-device-width: 900px) {
+    #rotateDeviceWarning {
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        width: 100vw; height: 100vh; font-size: 1.5rem; text-align: center;
+        position: fixed; top: 0; left: 0; z-index: 2000; background-color: #2c3e50;
+    }
+    .rotate-icon { font-size: 5rem; animation: spin 2s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    #appContainer { display: none; }
+}
+
+/* --- Основна структура --- */
+#appContainer, .screen { width: 100%; height: 100%; display: flex; flex-direction: column; }
+#startScreen { align-items: center; justify-content: center; }
+#gameScreen { align-items: center; justify-content: space-between; }
+
+/* --- Стартов екран --- */
+#startTitle { font-size: 3rem; }
+#portalContainer { display: flex; justify-content: center; gap: 40px; margin-top: 30px; }
 .portal { cursor: pointer; text-align: center; transition: transform 0.3s ease; }
 .portal:hover { transform: scale(1.05); }
-.portal img {
-    width: 250px; height: 140px; object-fit: cover;
-    border-radius: 20px; border: 5px solid white;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-}
+.portal img { width: 250px; height: 140px; object-fit: cover; border-radius: 20px; border: 5px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
 .portal-name { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
 
-/* --- ЕЛЕМЕНТИ НА ИГРАТА --- */
-.top-btn {
-    position: absolute; top: 20px; left: 20px; z-index: 100;
-    width: 50px; height: 50px; font-size: 1.5rem; line-height: 45px;
-    border-radius: 50%; border: 2px solid white; color: white;
-    background-color: rgba(0,0,0,0.4); cursor: pointer;
-}
-#gameTitle { font-size: 2.5rem; text-shadow: 3px 3px 8px rgba(0,0,0,0.8); margin: 0; }
+/* --- Екран за игра --- */
+.game-header { padding: 10px; box-sizing: border-box; flex-shrink: 0; }
+.top-btn { position: absolute; top: 20px; left: 20px; z-index: 100; width: 50px; height: 50px; font-size: 1.5rem; border-radius: 50%; border: 2px solid white; color: white; background-color: rgba(0,0,0,0.4); cursor: pointer; }
+#gameTitle { font-size: 2.2rem; margin: 0; }
 #gameMessage {
-    margin: 10px 0; font-size: 1.3rem; font-weight: bold;
-    min-height: 1.5em; background-color: rgba(255, 255, 255, 0.9);
-    padding: 10px 20px; border-radius: 50px; box-shadow: var(--slot-shadow); color: #333;
-    display: inline-block;
+    font-size: 1.2rem; font-weight: bold; background-color: rgba(255, 255, 255, 0.9);
+    padding: 8px 18px; border-radius: 50px; box-shadow: var(--slot-shadow); color: #333;
+    display: inline-block; margin-top: 5px;
 }
-#gameContainer { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-#dropZone { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; aspect-ratio: 16 / 9; }
+#dropZone { position: relative; width: 100%; max-width: 1100px; margin: 5px auto; aspect-ratio: 16 / 9; flex-grow: 1; }
 #slotHighlighter, .placed-image { position: absolute; object-fit: contain; transform: translate(-50%, -50%); aspect-ratio: 1 / 1; }
 #slotHighlighter.active { display: block; border: 5px solid #FFD700; border-radius: 50%; box-shadow: 0 0 30px #FFD700; animation: highlight-pop 0.6s ease-out forwards; }
-@keyframes highlight-pop {
-    0% { transform: translate(-50%, -50%) scale(0.8); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
-    100% { transform: translate(-50%, -50%) scale(1.0); }
-}
+@keyframes highlight-pop { /* ... */ }
 .placed-image { animation: place-in-slot 0.5s ease-out; }
-@keyframes place-in-slot {
-    from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-}
-#choiceZone { display: flex; align-items: center; gap: 15px; overflow-x: auto; justify-content: center; width: 100%; padding: 10px 0; box-sizing: border-box; flex-shrink: 0; }
-#choiceZone img { height: 100px; width: 100px; object-fit: contain; background-color: white; border: 4px solid white; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
+@keyframes place-in-slot { /* ... */ }
+#startTurnContainer { flex-shrink: 0; min-height: 50px; }
+#choiceZone { display: flex; align-items: center; gap: 15px; overflow-x: auto; justify-content: center; width: 100%; padding-bottom: 10px; box-sizing: border-box; flex-shrink: 0; }
+#choiceZone img { height: 80px; width: 80px; object-fit: contain; background-color: white; border: 4px solid white; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
 #choiceZone img:hover { transform: scale(1.08); }
-#choiceZone img.used { opacity: 0.4; cursor: not-allowed; transform: scale(0.95); }
+#choiceZone img.used { opacity: 0.4; cursor: not-allowed; }
 #winScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
 #winMessage { font-size: 6rem; color: white; text-shadow: 0 0 20px yellow; }
-.game-btn { padding: 15px 30px; font-size: 1.5rem; margin-top: 20px; cursor: pointer; color: white; border: none; border-radius: 50px; background-image: linear-gradient(45deg, #FF512F 0%, #DD2476 51%, #FF512F 100%); background-size: 200% auto; transition: all 0.4s ease; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.4); }
-.game-btn:hover { background-position: right center; }
+.game-btn { padding: 10px 25px; font-size: 1.2rem; margin: 0; color: white; border: none; border-radius: 50px; background-image: linear-gradient(45deg, #FF512F 0%, #DD2476 51%, #FF512F 100%); background-size: 200% auto; transition: all 0.4s ease; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.4); cursor: pointer; }
