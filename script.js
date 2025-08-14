@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentLayoutId = null;
     let isTurnActive = false;
     let isMuted = false;
+    let availableSlots = [];
+    let activeSlotData = null;
 
     // --- ОСНОВНА ЛОГИКА ---
 
@@ -39,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allItems = themesData.allItems;
             
             renderPortals(portalsData.portals);
+            setupEventListeners();
             showStartScreen();
         } catch (error) {
             console.error("Грешка при инициализация:", error);
@@ -75,25 +78,21 @@ document.addEventListener('DOMContentLoaded', () => {
             gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
             bodyEl.style.backgroundImage = `url('${currentPortalData.background}')`;
             gameTitleEl.textContent = currentPortalData.name;
-            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
+            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="slot-highlight hidden"></div>'; 
             
+            availableSlots = [...levelData.slots];
             const choicePool = generateChoicePool(levelData);
             renderChoiceZone(choicePool);
-            setupGameTurn(levelData.slots);
         } catch(error) {
             console.error(`Грешка при зареждане на подредба ${layoutId}.json:`, error);
         }
     }
 
-    // --- ТУК Е КОРЕКЦИЯТА ЗА БРОЯ НА КРЪГОВЕТЕ ---
     function generateChoicePool(levelData) {
-        // Използваме масив, а не Set, за да позволим дубликати
         const correctItemsArray = [];
         levelData.slots.forEach(slot => {
-            // За всеки слот намираме подходяща картинка
             const itemsForSlot = allItems.filter(item => slot.index.includes(item.index));
             if (itemsForSlot.length > 0) {
-                // Избираме случайна от възможните
                 const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
                 correctItemsArray.push(randomItem);
             }
@@ -113,79 +112,68 @@ document.addEventListener('DOMContentLoaded', () => {
             img.src = item.image;
             img.alt = item.name;
             img.dataset.index = item.index;
-            img.addEventListener('click', () => window.handleChoiceClick(item, img));
+            img.addEventListener('click', () => handleChoiceClick(item, img));
             choiceZoneEl.appendChild(img);
         });
     }
+    
+    function startNewTurn() {
+        if (isTurnActive) return;
+        isTurnActive = true;
+        startTurnBtn.classList.add('hidden');
+        
+        if (availableSlots.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableSlots.length);
+            activeSlotData = availableSlots[randomIndex];
+            
+            const highlighter = document.getElementById('slotHighlighter');
+            highlighter.style.top = activeSlotData.position.top;
+            highlighter.style.left = activeSlotData.position.left;
+            highlighter.style.width = activeSlotData.diameter;
+            
+            highlighter.classList.remove('hidden', 'active');
+            void highlighter.offsetWidth;
+            highlighter.classList.add('active');
+            gameMessageEl.textContent = 'Коя картинка е за тук?';
+        }
+    }
 
-    function setupGameTurn(slots) {
-        let availableSlots = [...slots];
-        let activeSlotData = null;
+    function handleChoiceClick(chosenItem, chosenImgElement) {
+        if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
 
-        const startNewTurn = () => {
-            if (isTurnActive) return;
-            isTurnActive = true;
-            startTurnBtn.classList.add('hidden');
-            activateNextSlot();
-        };
+        if (activeSlotData && activeSlotData.index.includes(chosenItem.index)) {
+            isTurnActive = false;
+            if (!isMuted) bravoAudio.play();
+            
+            const placedImg = document.createElement('div');
+            placedImg.className = 'placed-image';
+            placedImg.innerHTML = `<img src="${chosenItem.image}" alt="${chosenItem.name}">`;
+            placedImg.style.top = activeSlotData.position.top;
+            placedImg.style.left = activeSlotData.position.left;
+            placedImg.style.width = activeSlotData.diameter;
+            dropZoneEl.appendChild(placedImg);
 
-        const activateNextSlot = () => {
-            if (availableSlots.length > 0) {
-                const randomIndex = Math.floor(Math.random() * availableSlots.length);
-                activeSlotData = availableSlots[randomIndex];
-                
-                const highlighter = document.getElementById('slotHighlighter');
-                highlighter.style.top = activeSlotData.position.top;
-                highlighter.style.left = activeSlotData.position.left;
-                // ПРОМЯНА: Задаваме само ширина, височината идва от aspect-ratio в CSS
-                highlighter.style.width = activeSlotData.diameter;
-                
-                highlighter.classList.remove('hidden', 'active');
-                void highlighter.offsetWidth;
-                highlighter.classList.add('active');
-                gameMessageEl.textContent = 'Коя картинка е за тук?';
-            }
-        };
-
-        window.handleChoiceClick = (chosenItem, chosenImgElement) => {
-            if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
-
-            if (activeSlotData.index.includes(chosenItem.index)) {
-                isTurnActive = false;
-                if (!isMuted) bravoAudio.play();
-                
-                const placedImg = document.createElement('img');
-                placedImg.src = chosenItem.image;
-                placedImg.className = 'placed-image';
-                placedImg.style.top = activeSlotData.position.top;
-                placedImg.style.left = activeSlotData.position.left;
-                 // ПРОМЯНА: Задаваме само ширина, височината идва от aspect-ratio в CSS
-                placedImg.style.width = activeSlotData.diameter;
-                dropZoneEl.appendChild(placedImg);
-
-                document.getElementById('slotHighlighter').classList.add('hidden');
-                chosenImgElement.classList.add('used');
-                
-                availableSlots = availableSlots.filter(slot => slot !== activeSlotData);
-                
-                if (availableSlots.length === 0) {
-                    setTimeout(() => winScreenEl.classList.remove('hidden'), 1000);
-                } else {
-                    startTurnBtn.classList.remove('hidden');
-                    gameMessageEl.textContent = 'Натисни "СТАРТ" за следващия кръг!';
-                }
+            document.getElementById('slotHighlighter').classList.add('hidden');
+            chosenImgElement.classList.add('used');
+            
+            availableSlots = availableSlots.filter(slot => slot !== activeSlotData);
+            
+            if (availableSlots.length === 0) {
+                setTimeout(() => winScreenEl.classList.remove('hidden'), 1000);
             } else {
-                if (!isMuted) opitaiPakAudio.play();
-                gameMessageEl.textContent = 'Опитай пак!';
+                startTurnBtn.classList.remove('hidden');
+                gameMessageEl.textContent = 'Натисни "СТАРТ" за следващия кръг!';
             }
-        };
-        startTurnBtn.onclick = startNewTurn;
+        } else {
+            if (!isMuted) opitaiPakAudio.play();
+            gameMessageEl.textContent = 'Опитай пак!';
+        }
     }
 
     function loadNextLayout() {
         const layouts = currentPortalData.layouts;
-        if (layouts.length <= 1) {
-            loadLayout(layouts[0]);
+        if (!layouts || layouts.length <= 1) {
+            loadLayout(layouts ? layouts[0] : currentLayoutId);
             return;
         }
         let nextLayoutId;
@@ -198,31 +186,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function showStartScreen() {
         bodyEl.style.backgroundImage = 'none';
         bodyEl.style.backgroundColor = '#2c3e50';
-        gameScreenEl.classList.remove('visible');
         gameScreenEl.classList.add('hidden');
         startScreenEl.classList.remove('hidden');
     }
 
     function showGameScreen() {
         startScreenEl.classList.add('hidden');
-        gameScreenEl.classList.add('visible');
+        gameScreenEl.classList.remove('hidden');
     }
 
     function toggleMute() {
         isMuted = !isMuted;
         soundBtn.textContent = isMuted ? '🔇' : '🔊';
     }
-
-    // --- Event Listeners ---
-    playAgainBtn.addEventListener('click', loadNextLayout);
-    backToMenuBtn.addEventListener('click', showStartScreen);
-    soundBtn.addEventListener('click', toggleMute);
+    
+    function setupEventListeners() {
+        playAgainBtn.addEventListener('click', loadNextLayout);
+        backToMenuBtn.addEventListener('click', showStartScreen);
+        soundBtn.addEventListener('click', toggleMute);
+        startTurnBtn.addEventListener('click', startNewTurn);
+    }
 
     initializeApp();
     
     function shuffleArray(array) {
         let currentIndex = array.length, randomIndex;
-        while (currentIndex != 0) {
+        while (currentIndex !== 0) {
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex--;
             [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
