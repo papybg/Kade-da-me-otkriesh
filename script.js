@@ -118,24 +118,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function startNewTurn() {
-        if (isTurnActive) return;
+        if (isTurnActive || availableSlots.length === 0) return;
         isTurnActive = true;
         startTurnBtn.classList.add('hidden');
         
-        if (availableSlots.length > 0) {
-            const randomIndex = Math.floor(Math.random() * availableSlots.length);
-            activeSlotData = availableSlots[randomIndex];
-            
-            const highlighter = document.getElementById('slotHighlighter');
-            highlighter.style.top = activeSlotData.position.top;
-            highlighter.style.left = activeSlotData.position.left;
-            highlighter.style.width = activeSlotData.diameter;
-            
-            highlighter.classList.remove('hidden', 'active');
-            void highlighter.offsetWidth;
-            highlighter.classList.add('active');
-            gameMessageEl.textContent = 'Коя картинка е за тук?';
-        }
+        const randomIndex = Math.floor(Math.random() * availableSlots.length);
+        activeSlotData = availableSlots[randomIndex];
+        
+        const highlighter = document.getElementById('slotHighlighter');
+        highlighter.style.top = activeSlotData.position.top;
+        highlighter.style.left = activeSlotData.position.left;
+        highlighter.style.width = activeSlotData.diameter;
+        
+        highlighter.classList.remove('hidden', 'active');
+        void highlighter.offsetWidth;
+        highlighter.classList.add('active');
+        gameMessageEl.textContent = 'Коя картинка е за тук?';
     }
 
     function handleChoiceClick(chosenItem, chosenImgElement) {
@@ -172,8 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadNextLayout() {
         const layouts = currentPortalData.layouts;
-        if (!layouts || layouts.length <= 1) {
-            loadLayout(layouts ? layouts[0] : currentLayoutId);
+        if (!layouts || layouts.length === 0) return;
+        if (layouts.length === 1) {
+            loadLayout(layouts[0]);
             return;
         }
         let nextLayoutId;
