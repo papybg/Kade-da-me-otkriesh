@@ -87,13 +87,18 @@ body {
     margin: 0 auto; aspect-ratio: 16 / 9;
 }
 
-/* --- ТУК Е КОРЕКЦИЯТА ЗА ФОРМАТА И РАЗМЕРА --- */
-#slotHighlighter, .placed-image { 
-    position: absolute; 
-    object-fit: contain; 
+/* --- КОРЕКЦИИ ЗА ПОЗИЦИОНИРАНЕ --- */
+#slotHighlighter,
+.placed-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     transform: translate(-50%, -50%);
-    aspect-ratio: 1 / 1; /* ГАРАНТИРА, ЧЕ ВИНАГИ Е КВАДРАТ */
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    animation: place-in-slot 0.5s ease-out;
 }
+
 .placed-image img {
     width: 100%;
     height: 100%;
@@ -101,20 +106,19 @@ body {
 }
 
 #slotHighlighter.active {
-    display: block; 
-    border: 5px solid #FFD700; 
-    border-radius: 50%; /* Кръгла форма */
-    box-shadow: 0 0 30px #FFD700; 
+    display: block;
+    border: 5px solid #FFD700;
+    border-radius: 50%;
+    box-shadow: 0 0 30px #FFD700;
     animation: highlight-pop 0.6s ease-out forwards;
 }
+
 @keyframes highlight-pop {
     0% { transform: translate(-50%, -50%) scale(0.8); }
     50% { transform: translate(-50%, -50%) scale(1.1); }
     100% { transform: translate(-50%, -50%) scale(1.0); }
 }
-.placed-image { 
-    animation: place-in-slot 0.5s ease-out; 
-}
+
 @keyframes place-in-slot {
     from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
     to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -133,12 +137,15 @@ body {
 }
 #choiceZone img:hover { transform: scale(1.08); }
 #choiceZone img.used { opacity: 0.4; cursor: not-allowed; transform: scale(0.95); }
+
 #winScreen {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background-color: rgba(0,0,0,0.7); display: flex; flex-direction: column;
     justify-content: center; align-items: center; z-index: 1000;
 }
-#winMessage { font-size: 6rem; color: white; text-shadow: 0 0 20px yellow; }
+#winMessage {
+    font-size: 6rem; color: white; text-shadow: 0 0 20px yellow;
+}
 .game-btn {
     padding: 15px 30px; font-size: 1.5rem; margin-top: 20px; cursor: pointer;
     color: white; border: none; border-radius: 50px;
