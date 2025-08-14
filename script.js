@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let availableSlots = [];
 
     // --- ОСНОВНА ЛОГИКА ---
-
     async function initializeApp() {
         try {
             const [themesResponse, portalsResponse] = await Promise.all([
@@ -52,7 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
         portals.forEach(portal => {
             const portalEl = document.createElement('div');
             portalEl.className = 'portal';
-            portalEl.innerHTML = `<img src="${portal.icon}" alt="${portal.name}"><div class="portal-name">${portal.name}</div>`;
+            
+            const imgEl = document.createElement('img');
+            imgEl.src = portal.icon;
+            imgEl.alt = portal.name;
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'portal-name';
+            nameEl.textContent = portal.name;
+
+            portalEl.appendChild(imgEl);
+            portalEl.appendChild(nameEl);
+            
             portalEl.addEventListener('click', () => startGame(portal));
             portalContainerEl.appendChild(portalEl);
         });
@@ -92,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         levelData.slots.forEach(slot => {
             const itemsForSlot = allItems.filter(item => slot.index.includes(item.index));
             if (itemsForSlot.length > 0) {
-                const availableItems = itemsForSlot.filter(item => ![...correctItemsForLevel].includes(item));
+                 const availableItems = itemsForSlot.filter(item => ![...correctItemsForLevel].includes(item));
                 const itemToPush = availableItems.length > 0 ? availableItems[Math.floor(Math.random() * availableItems.length)] : itemsForSlot[0];
-                correctItemsForLevel.add(itemToPush);
+                 correctItemsForLevel.add(itemToPush);
             }
         });
 
