@@ -4,329 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Детски Игри</title>
-    <style>
-        :root {
-            --primary-color: #0d6efd;
-            --success-color: #198754;
-            --slot-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        html, body {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif;
-            background-color: #2c3e50; color: white;
-        }
-        .hidden { display: none !important; }
-        .title { font-size: 3rem; text-shadow: 2px 2px 4px #000; }
-        .screen {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
-            box-sizing: border-box; padding: 20px;
-        }
-        #startScreen { align-items: center; justify-content: center; }
-        #gameScreen { display: none; text-align: center; }
-        #gameScreen.visible { display: flex; }
-        #portalContainer { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; margin-top: 30px; }
-        .portal { cursor: pointer; text-align: center; transition: transform 0.3s ease; }
-        .portal:hover { transform: scale(1.05); }
-        .portal img {
-            width: 250px; height: 140px; object-fit: cover;
-            border-radius: 20px; border: 5px solid white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
-        .portal-name { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
-        .top-btn { position: absolute; top: 20px; left: 20px; z-index: 100; width: 50px; height: 50px; font-size: 1.5rem; border-radius: 50%; border: 2px solid white; color: white; background-color: rgba(0,0,0,0.4); cursor: pointer; }
-        .game-header { flex-shrink: 0; }
-        #gameTitle { font-size: 2.2rem; margin: 0; }
-        #gameMessage {
-            font-size: 1.2rem; background-color: rgba(255, 255, 255, 0.9); padding: 8px 18px;
-            border-radius: 50px; box-shadow: var(--slot-shadow); color: #333;
-            display: inline-block; margin-top: 5px; min-height: 1.5em;
-        }
-        #gameContainer { width: 100%; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        #dropZone { position: relative; width: 100%; max-width: 1100px; margin: 10px auto; aspect-ratio: 16 / 9; flex-grow: 1; min-height: 0; background-size: cover; background-position: center; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        #slotHighlighter, .placed-image { position: absolute; object-fit: contain; transform: translate(-50%, -50%); aspect-ratio: 1 / 1; }
-        #slotHighlighter.active { display: block; border: 5px solid #FFD700; border-radius: 50%; box-shadow: 0 0 30px #FFD700; animation: highlight-pop 0.6s ease-out forwards; }
-        @keyframes highlight-pop { from { transform: translate(-50%,-50%) scale(0.8); } to { transform: translate(-50%,-50%) scale(1.0); } }
-        .placed-image { animation: place-in-slot 0.5s ease-out; }
-        @keyframes place-in-slot { from { opacity: 0; transform: translate(-50%,-50%) scale(0.5); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
-        .game-footer { width: 100%; flex-shrink: 0; }
-        #startTurnContainer { min-height: 50px; }
-        .game-btn { padding: 10px 25px; font-size: 1.2rem; margin: 0; cursor: pointer; color: white; border: none; border-radius: 50px; background-image: linear-gradient(45deg, #FF512F 0%, #DD2476 51%, #FF512F 100%); background-size: 200% auto; transition: all 0.4s ease; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.4); }
-        #choiceZone { display: flex; align-items: center; gap: 15px; overflow-x: auto; justify-content: center; width: 100%; padding: 10px; box-sizing: border-box; }
-        #choiceZone img { height: 80px; width: 80px; object-fit: contain; background-color: white; border: 4px solid white; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
-        #choiceZone img:hover { transform: scale(1.08); }
-        #choiceZone img.used { opacity: 0.4; cursor: not-allowed; }
-        #winScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
-        #winMessage { font-size: 6rem; color: white; text-shadow: 0 0 20px yellow; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="startScreen" class="screen">
         <h1 class="title">Къде искаш да играеш?</h1>
         <div id="portalContainer"></div>
     </div>
+
     <div id="gameScreen" class="screen hidden">
         <div class="game-header">
             <button id="backToMenuBtn" class="top-btn" title="Обратно към менюто">☰</button>
             <h1 id="gameTitle" class="title"></h1>
             <div id="gameMessage"></div>
         </div>
+        
         <div id="dropZone">
-            <div id="slotHighlighter" class="hidden"></div>
+            <div id="gameBoard">
+                <div id="slotHighlighter" class="hidden"></div>
+            </div>
         </div>
+
         <div class="game-footer">
             <div id="startTurnContainer">
                 <button id="startTurnBtn" class="game-btn">СТАРТ</button>
             </div>
             <div id="choiceZone"></div>
         </div>
+
         <div id="winScreen" class="win-screen hidden">
             <div id="winMessage" class="win-message">БРАВО!</div>
             <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
-    <audio id="bravoAudio" src="audio/bravo_uily.wav"></audio>
-    <audio id="opitaiPakAudio" src="audio/opitaj_pak.wav"></audio>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("ДИАГНОСТИКА: DOM е зареден, скриптът започва.");
-            // --- ДАННИ (Твърдо кодирани за теста) ---
-            const themesData = {
-              "allItems": [
-                { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "index": "p" },
-                { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "index": "p" },
-                { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "index": "r" },
-                { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "index": "r" },
-                { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "index": "s" },
-                { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "index": "s" },
-                { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "index": "h" },
-                { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "index": "i" }
-              ]
-            };
-            const portalsData = {
-              "portals": [
-                {
-                  "id": "dolina", "name": "Зелена долина", "icon": "assets/icons/portal_dolina.png",
-                  "background": "assets/backgrounds/dolina.png", "layouts": ["d1"]
-                }
-              ]
-            };
-            const layoutsData = {
-                "d1": {
-                    "name": "Зелена долина",
-                    "slots": [
-                        { "position": { "top": "20%", "left": "15%" }, "diameter": "18%", "index": ["s"] },
-                        { "position": { "top": "30%", "left": "80%" }, "diameter": "18%", "index": ["s"] },
-                        { "position": { "top": "55%", "left": "88%" }, "diameter": "18%", "index": ["p", "h"] },
-                        { "position": { "top": "75%", "left": "40%" }, "diameter": "18%", "index": ["i"] },
-                        { "position": { "top": "70%", "left": "65%" }, "diameter": "18%", "index": ["r"] },
-                        { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] }
-                    ], "distractors": 2
-                }
-            };
 
-            // --- ЕЛЕМЕНТИ ---
-            const startScreenEl = document.getElementById('startScreen');
-            const portalContainerEl = document.getElementById('portalContainer');
-            const gameScreenEl = document.getElementById('gameScreen');
-            const dropZoneEl = document.getElementById('dropZone');
-            const choiceZoneEl = document.getElementById('choiceZone');
-            const gameMessageEl = document.getElementById('gameMessage');
-            const gameTitleEl = document.getElementById('gameTitle');
-            const winScreenEl = document.getElementById('winScreen');
-            const playAgainBtn = document.getElementById('playAgainBtn');
-            const startTurnBtn = document.getElementById('startTurnBtn');
-            const backToMenuBtn = document.getElementById('backToMenuBtn');
-            const bravoAudio = document.getElementById('bravoAudio');
-            const opitaiPakAudio = document.getElementById('opitaiPakAudio');
-
-            // --- СЪСТОЯНИЕ ---
-            let allItems = [];
-            let currentPortalData = {};
-            let currentLayoutId = null;
-            let isTurnActive = false;
-            let availableSlots = [];
-            let activeSlotData = null;
-
-            function initializeApp() {
-                console.log("ДИАГНОСТИКА: initializeApp() стартира.");
-                allItems = themesData.allItems;
-                renderPortals(portalsData.portals);
-                setupEventListeners();
-                showStartScreen();
-                console.log("ДИАГНОСТИКА: initializeApp() приключи успешно.");
-            }
-
-            function renderPortals(portals) {
-                console.log("ДИАГНОСТИКА: renderPortals() започва да рисува", portals.length, "портала.");
-                portalContainerEl.innerHTML = '';
-                portals.forEach(portal => {
-                    const portalEl = document.createElement('div');
-                    portalEl.className = 'portal';
-                    portalEl.innerHTML = `<img src="${portal.icon}" alt="${portal.name}"><div class="portal-name">${portal.name}</div>`;
-                    portalEl.addEventListener('click', () => startGame(portal));
-                    portalContainerEl.appendChild(portalEl);
-                });
-                 console.log("ДИАГНОСТИКА: Порталите са нарисувани.");
-            }
-
-            function startGame(portal) {
-                console.log("ДИАГНОСТИКА: startGame() е извикана за портал:", portal.id);
-                currentPortalData = portal;
-                showGameScreen();
-                loadNextLayout();
-            }
-
-            function loadLayout(layoutId) {
-                console.log("ДИАГНОСТИКА: loadLayout() започва да зарежда подредба:", layoutId);
-                const levelData = layoutsData[layoutId];
-                if (!levelData) {
-                    console.error(`Подредба ${layoutId} не е намерена!`);
-                    return;
-                }
-                console.log("ДИАГНОСТИКА: Данните за подредбата са намерени:", levelData);
-                currentLayoutId = layoutId;
-                
-                isTurnActive = false;
-                winScreenEl.classList.add('hidden');
-                startTurnBtn.classList.remove('hidden');
-                gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
-                dropZoneEl.style.backgroundImage = `url('${currentPortalData.background}')`;
-                gameTitleEl.textContent = currentPortalData.name;
-                dropZoneEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
-                
-                availableSlots = [...levelData.slots];
-                const choicePool = generateChoicePool(levelData);
-                console.log("ДИАГНОСТИКА: Генериран е избор от", choicePool.length, "картинки.");
-                renderChoiceZone(choicePool);
-            }
-
-            function generateChoicePool(levelData) {
-                const correctItemsArray = [];
-                levelData.slots.forEach(slot => {
-                    const itemsForSlot = allItems.filter(item => slot.index.includes(item.index));
-                    if (itemsForSlot.length > 0) {
-                        const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
-                        correctItemsArray.push(randomItem);
-                    }
-                });
-                const distractorItems = allItems.filter(item => !correctItemsArray.some(correct => correct.id === item.id));
-                const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
-                return shuffleArray([...correctItemsArray, ...finalDistractors]);
-            }
-            
-            function renderChoiceZone(choicePool) {
-                console.log("ДИАГНОСТИКА: renderChoiceZone() започва да рисува картинките долу.");
-                choiceZoneEl.innerHTML = '';
-                choicePool.forEach(item => {
-                    const img = document.createElement('img');
-                    img.src = item.image;
-                    img.alt = item.name;
-                    img.dataset.index = item.index;
-                    img.addEventListener('click', () => handleChoiceClick(item, img));
-                    choiceZoneEl.appendChild(img);
-                });
-                console.log("ДИАГНОСТИКА: Картинките долу са нарисувани.");
-            }
-            
-            function startNewTurn() {
-                if (isTurnActive || availableSlots.length === 0) return;
-                isTurnActive = true;
-                startTurnBtn.classList.add('hidden');
-                
-                const randomIndex = Math.floor(Math.random() * availableSlots.length);
-                activeSlotData = availableSlots[randomIndex];
-                
-                const highlighter = document.getElementById('slotHighlighter');
-                highlighter.style.top = activeSlotData.position.top;
-                highlighter.style.left = activeSlotData.position.left;
-                highlighter.style.width = activeSlotData.diameter;
-                
-                highlighter.classList.remove('hidden', 'active');
-                void highlighter.offsetWidth;
-                highlighter.classList.add('active');
-                gameMessageEl.textContent = 'Коя картинка е за тук?';
-            }
-
-            function handleChoiceClick(chosenItem, chosenImgElement) {
-                if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
-                if (activeSlotData && activeSlotData.index.includes(chosenItem.index)) {
-                    isTurnActive = false;
-                    bravoAudio.play();
-                    
-                    const placedImg = document.createElement('img');
-                    placedImg.src = chosenItem.image;
-                    placedImg.className = 'placed-image';
-                    placedImg.style.top = activeSlotData.position.top;
-                    placedImg.style.left = activeSlotData.position.left;
-                    placedImg.style.width = activeSlotData.diameter;
-                    dropZoneEl.appendChild(placedImg);
-
-                    document.getElementById('slotHighlighter').classList.add('hidden');
-                    chosenImgElement.classList.add('used');
-                    
-                    availableSlots = availableSlots.filter(slot => slot !== activeSlotData);
-                    
-                    if (availableSlots.length === 0) {
-                        setTimeout(() => winScreenEl.classList.remove('hidden'), 1000);
-                    } else {
-                        startTurnBtn.classList.remove('hidden');
-                        gameMessageEl.textContent = 'Натисни "СТАРТ" за следващия кръг!';
-                    }
-                } else {
-                    opitaiPakAudio.play();
-                    gameMessageEl.textContent = 'Опитай пак!';
-                }
-            }
-
-            function loadNextLayout() {
-                console.log("ДИАГНОСТИКА: loadNextLayout() е извикана.");
-                const layouts = currentPortalData.layouts;
-                if (!layouts || layouts.length === 0) {
-                    console.warn("Няма дефинирани подредби за този портал.");
-                    return;
-                }
-                if (layouts.length === 1) {
-                    loadLayout(layouts[0]);
-                    return;
-                }
-                let nextLayoutId;
-                do {
-                    nextLayoutId = layouts[Math.floor(Math.random() * layouts.length)];
-                } while (nextLayoutId === currentLayoutId);
-                loadLayout(nextLayoutId);
-            }
-            
-            function showStartScreen() {
-                bodyEl.style.backgroundImage = 'none';
-                gameScreenEl.classList.add('hidden');
-                startScreenEl.classList.remove('hidden');
-            }
-
-            function showGameScreen() {
-                startScreenEl.classList.add('hidden');
-                gameScreenEl.classList.remove('hidden');
-                gameScreenEl.classList.add('visible');
-            }
-
-            function setupEventListeners() {
-                playAgainBtn.addEventListener('click', loadNextLayout);
-                backToMenuBtn.addEventListener('click', showStartScreen);
-                startTurnBtn.addEventListener('click', startNewTurn);
-            }
-
-            function shuffleArray(array) {
-                let currentIndex = array.length, randomIndex;
-                while (currentIndex !== 0) {
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex--;
-                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-                }
-                return array;
-            }
-
-            initializeApp();
-        });
-    </script>
+    <audio id="bravoAudio" src="audio/flowers/bravo_uily.wav"></audio>
+    <audio id="opitaiPakAudio" src="audio/flowers/opitaj_pak.wav"></audio>
+    <script src="script.js"></script>
 </body>
 </html>
