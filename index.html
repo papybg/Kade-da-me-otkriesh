@@ -17,8 +17,6 @@
         }
         .hidden { display: none !important; }
         .title { font-size: 3rem; text-shadow: 2px 2px 4px #000; }
-
-        /* --- Екрани --- */
         .screen {
             width: 100%; height: 100%; display: flex; flex-direction: column;
             box-sizing: border-box; padding: 20px;
@@ -26,8 +24,6 @@
         #startScreen { align-items: center; justify-content: center; }
         #gameScreen { display: none; text-align: center; }
         #gameScreen.visible { display: flex; }
-
-        /* --- Портали --- */
         #portalContainer { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; margin-top: 30px; }
         .portal { cursor: pointer; text-align: center; transition: transform 0.3s ease; }
         .portal:hover { transform: scale(1.05); }
@@ -37,8 +33,6 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
         .portal-name { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
-        
-        /* --- Елементи на играта --- */
         .top-btn { position: absolute; top: 20px; left: 20px; z-index: 100; width: 50px; height: 50px; font-size: 1.5rem; border-radius: 50%; border: 2px solid white; color: white; background-color: rgba(0,0,0,0.4); cursor: pointer; }
         .game-header { flex-shrink: 0; }
         #gameTitle { font-size: 2.2rem; margin: 0; }
@@ -70,7 +64,6 @@
         <h1 class="title">Къде искаш да играеш?</h1>
         <div id="portalContainer"></div>
     </div>
-
     <div id="gameScreen" class="screen hidden">
         <div class="game-header">
             <button id="backToMenuBtn" class="top-btn" title="Обратно към менюто">☰</button>
@@ -91,13 +84,13 @@
             <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
-
     <audio id="bravoAudio" src="audio/bravo_uily.wav"></audio>
     <audio id="opitaiPakAudio" src="audio/opitaj_pak.wav"></audio>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- ДАННИ (ПРЕДИ БЯХА ВЪВ ВЪНШНИ .json ФАЙЛОВЕ) ---
+            console.log("ДИАГНОСТИКА: DOM е зареден, скриптът започва.");
+            // --- ДАННИ (Твърдо кодирани за теста) ---
             const themesData = {
               "allItems": [
                 { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "index": "p" },
@@ -113,11 +106,8 @@
             const portalsData = {
               "portals": [
                 {
-                  "id": "dolina",
-                  "name": "Зелена долина",
-                  "icon": "assets/icons/portal_dolina.png",
-                  "background": "assets/backgrounds/dolina.png",
-                  "layouts": ["d1"]
+                  "id": "dolina", "name": "Зелена долина", "icon": "assets/icons/portal_dolina.png",
+                  "background": "assets/backgrounds/dolina.png", "layouts": ["d1"]
                 }
               ]
             };
@@ -131,15 +121,11 @@
                         { "position": { "top": "75%", "left": "40%" }, "diameter": "18%", "index": ["i"] },
                         { "position": { "top": "70%", "left": "65%" }, "diameter": "18%", "index": ["r"] },
                         { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] }
-                    ],
-                    "distractors": 2
+                    ], "distractors": 2
                 }
             };
 
             // --- ЕЛЕМЕНТИ ---
-            const bodyEl = document.body;
-            const bravoAudio = document.getElementById('bravoAudio');
-            const opitaiPakAudio = document.getElementById('opitaiPakAudio');
             const startScreenEl = document.getElementById('startScreen');
             const portalContainerEl = document.getElementById('portalContainer');
             const gameScreenEl = document.getElementById('gameScreen');
@@ -151,6 +137,8 @@
             const playAgainBtn = document.getElementById('playAgainBtn');
             const startTurnBtn = document.getElementById('startTurnBtn');
             const backToMenuBtn = document.getElementById('backToMenuBtn');
+            const bravoAudio = document.getElementById('bravoAudio');
+            const opitaiPakAudio = document.getElementById('opitaiPakAudio');
 
             // --- СЪСТОЯНИЕ ---
             let allItems = [];
@@ -160,15 +148,17 @@
             let availableSlots = [];
             let activeSlotData = null;
 
-            // --- ОСНОВНА ЛОГИКА ---
             function initializeApp() {
+                console.log("ДИАГНОСТИКА: initializeApp() стартира.");
                 allItems = themesData.allItems;
                 renderPortals(portalsData.portals);
                 setupEventListeners();
                 showStartScreen();
+                console.log("ДИАГНОСТИКА: initializeApp() приключи успешно.");
             }
 
             function renderPortals(portals) {
+                console.log("ДИАГНОСТИКА: renderPortals() започва да рисува", portals.length, "портала.");
                 portalContainerEl.innerHTML = '';
                 portals.forEach(portal => {
                     const portalEl = document.createElement('div');
@@ -177,20 +167,24 @@
                     portalEl.addEventListener('click', () => startGame(portal));
                     portalContainerEl.appendChild(portalEl);
                 });
+                 console.log("ДИАГНОСТИКА: Порталите са нарисувани.");
             }
 
             function startGame(portal) {
+                console.log("ДИАГНОСТИКА: startGame() е извикана за портал:", portal.id);
                 currentPortalData = portal;
                 showGameScreen();
                 loadNextLayout();
             }
 
             function loadLayout(layoutId) {
+                console.log("ДИАГНОСТИКА: loadLayout() започва да зарежда подредба:", layoutId);
                 const levelData = layoutsData[layoutId];
                 if (!levelData) {
                     console.error(`Подредба ${layoutId} не е намерена!`);
                     return;
                 }
+                console.log("ДИАГНОСТИКА: Данните за подредбата са намерени:", levelData);
                 currentLayoutId = layoutId;
                 
                 isTurnActive = false;
@@ -203,6 +197,7 @@
                 
                 availableSlots = [...levelData.slots];
                 const choicePool = generateChoicePool(levelData);
+                console.log("ДИАГНОСТИКА: Генериран е избор от", choicePool.length, "картинки.");
                 renderChoiceZone(choicePool);
             }
 
@@ -215,17 +210,13 @@
                         correctItemsArray.push(randomItem);
                     }
                 });
-                
-                if (correctItemsArray.length < levelData.slots.length) {
-                    console.warn("Не са намерени достатъчно уникални картинки за всички слотове.");
-                }
-
                 const distractorItems = allItems.filter(item => !correctItemsArray.some(correct => correct.id === item.id));
                 const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
                 return shuffleArray([...correctItemsArray, ...finalDistractors]);
             }
             
             function renderChoiceZone(choicePool) {
+                console.log("ДИАГНОСТИКА: renderChoiceZone() започва да рисува картинките долу.");
                 choiceZoneEl.innerHTML = '';
                 choicePool.forEach(item => {
                     const img = document.createElement('img');
@@ -235,6 +226,7 @@
                     img.addEventListener('click', () => handleChoiceClick(item, img));
                     choiceZoneEl.appendChild(img);
                 });
+                console.log("ДИАГНОСТИКА: Картинките долу са нарисувани.");
             }
             
             function startNewTurn() {
@@ -288,9 +280,14 @@
             }
 
             function loadNextLayout() {
+                console.log("ДИАГНОСТИКА: loadNextLayout() е извикана.");
                 const layouts = currentPortalData.layouts;
-                if (!layouts || layouts.length <= 1) {
-                    loadLayout(layouts ? layouts[0] : currentLayoutId);
+                if (!layouts || layouts.length === 0) {
+                    console.warn("Няма дефинирани подредби за този портал.");
+                    return;
+                }
+                if (layouts.length === 1) {
+                    loadLayout(layouts[0]);
                     return;
                 }
                 let nextLayoutId;
@@ -309,6 +306,7 @@
             function showGameScreen() {
                 startScreenEl.classList.add('hidden');
                 gameScreenEl.classList.remove('hidden');
+                gameScreenEl.classList.add('visible');
             }
 
             function setupEventListeners() {
