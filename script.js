@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bravoAudio = document.getElementById('bravoAudio');
     const opitaiPakAudio = document.getElementById('opitaiPakAudio');
     const startScreenEl = document.getElementById('startScreen');
-    const portalContainerEl = document.getElementById('portalContainer'); // <<-- ТОЗИ РЕД ЛИПСВАШЕ
+    const portalContainerEl = document.getElementById('portalContainer');
     const gameScreenEl = document.getElementById('gameScreen');
     const gameBoardEl = document.getElementById('gameBoard');
     const choiceZoneEl = document.getElementById('choiceZone');
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             isTurnActive = false;
             winScreenEl.classList.add('hidden');
             startTurnBtn.classList.remove('hidden');
-            gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
+            gameMessageEl.textContent = 'Натисни "СТАРТ"!';
             gameBoardEl.style.backgroundImage = `url('${currentPortalData.background}')`; 
             gameTitleEl.textContent = currentPortalData.name;
             gameBoardEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
@@ -81,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateChoicePool(levelData) {
         const correctItemsArray = [];
         const usedItems = new Set();
-
         levelData.slots.forEach(slot => {
             const itemsForSlot = allItems.filter(item => 
                 slot.index.includes(item.index) && !usedItems.has(item.id)
@@ -92,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 usedItems.add(randomItem.id);
             }
         });
-        
         const distractorItems = allItems.filter(item => !usedItems.has(item.id));
         const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
         return shuffleArray([...correctItemsArray, ...finalDistractors]);
@@ -114,15 +112,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isTurnActive || availableSlots.length === 0) return;
         isTurnActive = true;
         startTurnBtn.classList.add('hidden');
-        
+        activateNextSlot();
+    }
+
+    function activateNextSlot() {
         const randomIndex = Math.floor(Math.random() * availableSlots.length);
         activeSlotData = availableSlots[randomIndex];
-        
         const highlighter = document.getElementById('slotHighlighter');
         highlighter.style.top = activeSlotData.position.top;
         highlighter.style.left = activeSlotData.position.left;
         highlighter.style.width = activeSlotData.diameter;
-        
         highlighter.classList.remove('hidden', 'active');
         void highlighter.offsetWidth;
         highlighter.classList.add('active');
@@ -133,6 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
 
         if (activeSlotData && activeSlotData.index.includes(chosenItem.index)) {
+            if (chosenItem.sound) {
+                const itemSound = new Audio(chosenItem.sound);
+                itemSound.play();
+            }
             bravoAudio.play();
             
             const placedImg = document.createElement('img');
@@ -152,8 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isTurnActive = false;
                 setTimeout(() => winScreenEl.classList.remove('hidden'), 1000);
             } else {
-                // Автоматично активираме следващия слот
-                isTurnActive = true; // Оставяме го true за следващия ход
+                isTurnActive = true;
                 activateNextSlot();
             }
         } else {
@@ -191,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
         backToMenuBtn.addEventListener('click', showStartScreen);
         startTurnBtn.addEventListener('click', startNewTurn);
     }
-
     function shuffleArray(array) {
         let currentIndex = array.length, randomIndex;
         while (currentIndex !== 0) {
