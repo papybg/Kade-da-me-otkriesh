@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Зареждане на следващото ниво или първото ако няма текущо
         const nextIndex = currentLayoutId ? 
-            (currentPortalData.layouts.indexOf(currentLayoutId) + 1 : 0;
+            (currentPortalData.layouts.indexOf(currentLayoutId) + 1) : 0;
         
         if (nextIndex >= currentPortalData.layouts.length) {
             winScreenEl.classList.remove('hidden');
