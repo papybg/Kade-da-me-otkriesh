@@ -3,8 +3,8 @@
     {
       "id": "dolina",
       "name": "Зелена долина",
-      "icon": "/Kade-da-me-otkriesh/assets/icons/portal_dolina.png",
-      "background": "/Kade-da-me-otkriesh/assets/backgrounds/dolina-large.png",
+      "icon": "assets/icons/portal_dolina.png",
+      "background": "assets/backgrounds/dolina-large.png",
       "layouts": ["d1"]
     }
   ]
