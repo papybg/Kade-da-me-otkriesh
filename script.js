@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
     const gameScreenEl = document.getElementById('gameScreen');
-    const gameBoardEl = document.getElementById('gameBoard'); // ПРОМЯНА: Новият елемент
+    const gameBoardEl = document.getElementById('gameBoard');
     const choiceZoneEl = document.getElementById('choiceZone');
     const gameMessageEl = document.getElementById('gameMessage');
     const gameTitleEl = document.getElementById('gameTitle');
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             winScreenEl.classList.add('hidden');
             startTurnBtn.classList.remove('hidden');
             gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
-            // ПРОМЯНА: Задаваме фона на gameBoard, не на body или dropZone
             gameBoardEl.style.backgroundImage = `url('${currentPortalData.background}')`; 
             gameTitleEl.textContent = currentPortalData.name;
             gameBoardEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
@@ -137,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
             placedImg.style.top = activeSlotData.position.top;
             placedImg.style.left = activeSlotData.position.left;
             placedImg.style.width = activeSlotData.diameter;
-            // ПРОМЯНА: Добавяме картинките към gameBoard
             gameBoardEl.appendChild(placedImg);
 
             document.getElementById('slotHighlighter').classList.add('hidden');
@@ -171,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showStartScreen() {
+        bodyEl.style.backgroundImage = 'none';
         gameScreenEl.classList.remove('visible');
         gameScreenEl.classList.add('hidden');
         startScreenEl.classList.remove('hidden');
