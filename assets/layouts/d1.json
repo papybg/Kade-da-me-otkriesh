@@ -1,6 +1,6 @@
 {
   "name": "Зелена долина",
-  "background": "../backgrounds/dolina-large.png",
+  "background": "..assets/backgrounds/dolina-large.png",
   "slots": [
     { "position": { "top": "35%", "left": "15%" }, "diameter": "18%", "index": ["s"] },
     { "position": { "top": "40%", "left": "80%" }, "diameter": "18%", "index": ["s"] },
