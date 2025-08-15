@@ -1,4 +1,3 @@
-alert("Скриптът работи!");
 document.addEventListener('DOMContentLoaded', () => {
     // --- ЕЛЕМЕНТИ ---
     const bodyEl = document.body;
@@ -7,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
     const gameScreenEl = document.getElementById('gameScreen');
-    const dropZoneEl = document.getElementById('dropZone');
+    const gameBoardEl = document.getElementById('gameBoard'); // ПРОМЯНА: Новият елемент
     const choiceZoneEl = document.getElementById('choiceZone');
     const gameMessageEl = document.getElementById('gameMessage');
     const gameTitleEl = document.getElementById('gameTitle');
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let availableSlots = [];
     let activeSlotData = null;
 
-    // --- ОСНОВНА ЛОГИКА ---
     async function initializeApp() {
         try {
             const [themesResponse, portalsResponse] = await Promise.all([
@@ -32,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('portals.json')
             ]);
             if (!themesResponse.ok || !portalsResponse.ok) throw new Error('Config files not found');
-            
             const themesData = await themesResponse.json();
             const portalsData = await portalsResponse.json();
             allItems = themesData.allItems;
@@ -40,10 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPortals(portalsData.portals);
             setupEventListeners();
             showStartScreen();
-        } catch (error) {
-            console.error("Initialization Error:", error);
-            document.body.innerHTML = `<h1>Грешка при зареждане. Проверете конзолата (F12).</h1>`;
-        }
+        } catch (error) { console.error("Initialization Error:", error); }
     }
 
     function renderPortals(portals) {
@@ -74,17 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
             winScreenEl.classList.add('hidden');
             startTurnBtn.classList.remove('hidden');
             gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
-            // ПРОМЯНА: Задаваме фона на dropZone, не на body
-            dropZoneEl.style.backgroundImage = `url('${currentPortalData.background}')`; 
+            // ПРОМЯНА: Задаваме фона на gameBoard, не на body или dropZone
+            gameBoardEl.style.backgroundImage = `url('${currentPortalData.background}')`; 
             gameTitleEl.textContent = currentPortalData.name;
-            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
+            gameBoardEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
             
             availableSlots = [...levelData.slots];
             const choicePool = generateChoicePool(levelData);
             renderChoiceZone(choicePool);
-        } catch(error) {
-            console.error(`Error loading layout ${layoutId}.json:`, error);
-        }
+        } catch(error) { console.error(`Error loading layout ${layoutId}.json:`, error); }
     }
 
     function generateChoicePool(levelData) {
@@ -96,12 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 correctItemsArray.push(randomItem);
             }
         });
-
-        // Гарантираме, че имаме картинка за всеки слот
-        if (correctItemsArray.length < levelData.slots.length) {
-            console.warn("Не са намерени достатъчно уникални картинки за всички слотове.");
-        }
-
         const distractorItems = allItems.filter(item => !correctItemsArray.some(correct => correct.id === item.id));
         const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
         return shuffleArray([...correctItemsArray, ...finalDistractors]);
@@ -151,7 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
             placedImg.style.top = activeSlotData.position.top;
             placedImg.style.left = activeSlotData.position.left;
             placedImg.style.width = activeSlotData.diameter;
-            dropZoneEl.appendChild(placedImg);
+            // ПРОМЯНА: Добавяме картинките към gameBoard
+            gameBoardEl.appendChild(placedImg);
 
             document.getElementById('slotHighlighter').classList.add('hidden');
             chosenImgElement.classList.add('used');
@@ -184,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showStartScreen() {
-        bodyEl.style.backgroundImage = 'none';
         gameScreenEl.classList.remove('visible');
         gameScreenEl.classList.add('hidden');
         startScreenEl.classList.remove('hidden');
@@ -192,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showGameScreen() {
         startScreenEl.classList.add('hidden');
+        gameScreenEl.classList.remove('hidden');
         gameScreenEl.classList.add('visible');
     }
 
@@ -201,8 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startTurnBtn.addEventListener('click', startNewTurn);
     }
 
-    initializeApp();
-    
     function shuffleArray(array) {
         let currentIndex = array.length, randomIndex;
         while (currentIndex !== 0) {
@@ -212,4 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return array;
     }
+
+    initializeApp();
 });
