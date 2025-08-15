@@ -1,20 +1,94 @@
 {
   "allItems": [
-    { "id": "cat", "name": "Котка", "image": "/Kade-da-me-otkriesh/images/h/cat.jpg", "index": "h" },
-    { "id": "dog", "name": "Куче", "image": "/Kade-da-me-otkriesh/images/h/dog.jpg", "sound": "/Kade-da-me-otkriesh/audio/animals/dog.mp3", "index": "h" },
-    { "id": "train", "name": "Влак", "image": "/Kade-da-me-otkriesh/images/i/train.jpg", "sound": "/Kade-da-me-otkriesh/audio/cars/train.mp3", "index": "i" },
-    { "id": "chicken", "name": "Кокошка", "image": "/Kade-da-me-otkriesh/images/p/chicken.png", "sound": "/Kade-da-me-otkriesh/audio/birds/chicken.mp3", "index": "p" },
-    { "id": "cow", "name": "Крава", "image": "/Kade-da-me-otkriesh/images/p/cow.png", "index": "p" },
-    { "id": "duck", "name": "Патица", "image": "/Kade-da-me-otkriesh/images/p/duck.png", "sound": "/Kade-da-me-otkriesh/audio/birds/duck.mp3", "index": "p" },
-    { "id": "rooster", "name": "Петел", "image": "/Kade-da-me-otkriesh/images/p/rooster.png", "sound": "/Kade-da-me-otkriesh/audio/birds/rooster.mp3", "index": "p" },
-    { "id": "turkey", "name": "Пуйка", "image": "/Kade-da-me-otkriesh/images/p/turkey.png", "sound": "/Kade-da-me-otkriesh/audio/birds/turkey.mp3", "index": "p" },
-    { "id": "bus", "name": "Автобус", "image": "/Kade-da-me-otkriesh/images/r/bus.jpg", "sound": "/Kade-da-me-otkriesh/audio/cars/bus.mp3", "index": "r" },
-    { "id": "firetruck", "name": "Пожарна", "image": "/Kade-da-me-otkriesh/images/r/firetruck.jpg", "sound": "/Kade-da-me-otkriesh/audio/cars/firetruck.mp3", "index": "r" },
-    { "id": "truck", "name": "Камион", "image": "/Kade-da-me-otkriesh/images/r/truck.jpg", "sound": "/Kade-da-me-otkriesh/audio/cars/truck-horn.mp3", "index": "r" },
-    { "id": "airplane", "name": "Самолет", "image": "/Kade-da-me-otkriesh/images/s/airplane.jpg", "sound": "/Kade-da-me-otkriesh/audio/cars/airplane.mp3", "index": "s" },
-    { "id": "crow", "name": "Врана", "image": "/Kade-da-me-otkriesh/images/s/crow.png", "sound": "/Kade-da-me-otkriesh/audio/birds/crow.mp3", "index": "s" },
-    { "id": "dove", "name": "Гълъб", "image": "/Kade-da-me-otkriesh/images/s/dove.png", "sound": "/Kade-da-me-otkriesh/audio/birds/dove.mp3", "index": "s" },
-    { "id": "falcon", "name": "Сокол", "image": "/Kade-da-me-otkriesh/images/s/falcon.png", "sound": "/Kade-da-me-otkriesh/audio/birds/falcon.mp3", "index": "s" },
-    { "id": "robin", "name": "Червеношийка", "image": "/Kade-da-me-otkriesh/images/s/robin.png", "sound": "/Kade-da-me-otkriesh/audio/birds/robin.mp3", "index": "s" }
+    {
+      "id": "cat",
+      "name": "Котка",
+      "image": "images/h/cat.jpg",
+      "index": "h"
+    },
+    {
+      "id": "dog",
+      "name": "Куче",
+      "image": "images/h/dog.jpg",
+      "index": "h"
+    },
+    {
+      "id": "train",
+      "name": "Влак",
+      "image": "images/i/train.jpg",
+      "index": "i"
+    },
+    {
+      "id": "chicken",
+      "name": "Кокошка",
+      "image": "images/p/chicken.png",
+      "index": "p"
+    },
+    {
+      "id": "cow",
+      "name": "Крава",
+      "image": "images/p/cow.png",
+      "index": "p"
+    },
+    {
+      "id": "duck",
+      "name": "Патица",
+      "image": "images/p/duck.png",
+      "index": "p"
+    },
+    {
+      "id": "rooster",
+      "name": "Петел",
+      "image": "images/p/rooster.png",
+      "index": "p"
+    },
+    {
+      "id": "turkey",
+      "name": "Пуйка",
+      "image": "images/p/turkey.png",
+      "index": "p"
+    },
+    {
+      "id": "bus",
+      "name": "Автобус",
+      "image": "images/r/bus.jpg",
+      "index": "r"
+    },
+    {
+      "id": "firetruck",
+      "name": "Пожарна",
+      "image": "images/r/firetruck.jpg",
+      "index": "r"
+    },
+    {
+      "id": "truck",
+      "name": "Камион",
+      "image": "images/r/truck.jpg",
+      "index": "r"
+    },
+    {
+      "id": "airplane",
+      "name": "Самолет",
+      "image": "images/s/airplane.jpg",
+      "index": "s"
+    },
+    {
+      "id": "crow",
+      "name": "Врана",
+      "image": "images/s/crow.png",
+      "index": "s"
+    },
+    {
+      "id": "dove",
+      "name": "Гълъб",
+      "image": "images/s/dove.png",
+      "index": "s"
+    },
+    {
+      "id": "falcon",
+      "name": "Сокол",
+      "image": "images/s/falcon.png",
+      "index": "s"
+    }
   ]
 }
