@@ -1,3 +1,4 @@
+alert("Скриптът работи!");
 document.addEventListener('DOMContentLoaded', () => {
     // --- ЕЛЕМЕНТИ ---
     const bodyEl = document.body;
