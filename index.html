@@ -2,29 +2,42 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Къде да ме откриеш?</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="startScreen" class="screen visible">
         <h1 class="title">Къде искаш да играеш?</h1>
-        <div id="portalContainer" class="portals-grid"></div>
+        <div id="portalContainer"></div>
     </div>
     
     <div id="gameScreen" class="screen hidden">
         <div class="game-header">
             <button id="backToMenuBtn" class="top-btn">☰</button>
             <h1 id="gameTitle" class="title"></h1>
+            <div id="gameMessage"></div>
         </div>
-        <div id="gameBoard"></div>
-        <div id="choiceZone" class="choices-container"></div>
+        
+        <div id="dropZone">
+            <div id="gameBoard"></div>
+        </div>
+        
+        <div class="game-footer">
+            <div id="startTurnContainer">
+                <button id="startTurnBtn" class="game-btn">СТАРТ</button>
+            </div>
+            <div id="choiceZoneContainer">
+                <div id="choiceZone"></div>
+            </div>
+        </div>
+        
         <div id="winScreen" class="win-screen hidden">
-            <div class="win-message">Браво!</div>
-            <button id="playAgainBtn" class="game-btn">Играй отново</button>
+            <div id="winMessage" class="win-message">БРАВО!</div>
+            <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
-
+    
     <audio id="bravoAudio" src="audio/bravo_uily.wav"></audio>
     <audio id="opitaiPakAudio" src="audio/opitaj_pak.wav"></audio>
     <script src="script.js"></script>
