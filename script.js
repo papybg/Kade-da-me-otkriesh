@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             isTurnActive = false;
             winScreenEl.classList.add('hidden');
-            startTurnBtn.classList.remove('hidden');
-            gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
+            startTurnBtn.classList.remove('hidden'); // Показваме бутона СТАРТ
+            gameMessageEl.textContent = 'Натисни "СТАРТ", за да започнеш!';
             gameBoardEl.style.backgroundImage = `url('${currentPortalData.background}')`; 
             gameTitleEl.textContent = currentPortalData.name;
             gameBoardEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
@@ -79,15 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function generateChoicePool(levelData) {
-        const correctItemsArray = [];
+        const correctItemsForLevel = new Set(); // Използваме Set, за да гарантираме уникалност
+        const tempAllItems = shuffleArray([...allItems]); // Разбъркано копие
+
         levelData.slots.forEach(slot => {
-            const itemsForSlot = allItems.filter(item => slot.index.includes(item.index));
-            if (itemsForSlot.length > 0) {
-                const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
-                correctItemsArray.push(randomItem);
+            // Търсим уникална картинка за всеки слот
+            const itemForSlot = tempAllItems.find(item => 
+                slot.index.includes(item.index) && !correctItemsForLevel.has(item)
+            );
+            if(itemForSlot) {
+                correctItemsForLevel.add(itemForSlot);
             }
         });
-        const distractorItems = allItems.filter(item => !correctItemsArray.some(correct => correct.id === item.id));
+
+        const correctItemsArray = Array.from(correctItemsForLevel);
+        const distractorItems = allItems.filter(item => 
+            !correctItemsArray.some(correct => correct.id === item.id)
+        );
         const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
         return shuffleArray([...correctItemsArray, ...finalDistractors]);
     }
@@ -107,8 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function startNewTurn() {
         if (isTurnActive || availableSlots.length === 0) return;
         isTurnActive = true;
-        startTurnBtn.classList.add('hidden');
+        startTurnBtn.classList.add('hidden'); // Скриваме бутона СТАРТ след първото натискане
         
+        activateNextSlot();
+    }
+
+    function activateNextSlot() {
         const randomIndex = Math.floor(Math.random() * availableSlots.length);
         activeSlotData = availableSlots[randomIndex];
         
@@ -127,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
 
         if (activeSlotData && activeSlotData.index.includes(chosenItem.index)) {
-            isTurnActive = false;
             bravoAudio.play();
             
             const placedImg = document.createElement('img');
@@ -144,10 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
             availableSlots = availableSlots.filter(slot => slot !== activeSlotData);
             
             if (availableSlots.length === 0) {
+                isTurnActive = false;
                 setTimeout(() => winScreenEl.classList.remove('hidden'), 1000);
             } else {
-                startTurnBtn.classList.remove('hidden');
-                gameMessageEl.textContent = 'Натисни "СТАРТ" за следващия кръг!';
+                // Активираме следващия слот АВТОМАТИЧНО
+                activateNextSlot();
             }
         } else {
             opitaiPakAudio.play();
