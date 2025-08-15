@@ -1,6 +1,6 @@
 {
   "allItems": [
-    { "id": "cat", "name": "Котка", "image": "images/h/cat.jpg", "sound": "", "index": "h" },
+    { "id": "cat", "name": "Котка", "image": "images/h/cat.jpg", "sound": "audio/animals/cat.mp3", "index": "h" },
     { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "sound": "audio/animals/dog.mp3", "index": "h" },
     { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "sound": "audio/cars/train.mp3", "index": "i" },
     { "id": "chicken", "name": "Кокошка", "image": "images/p/chicken.png", "sound": "audio/birds/chicken.mp3", "index": "p" },
