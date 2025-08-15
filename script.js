@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ЕЛЕМЕНТИТЕ ОСТАВАТ СЪЩИТЕ ---
+    // --- ЕЛЕМЕНТИ ---
     const bodyEl = document.body;
     const bravoAudio = document.getElementById('bravoAudio');
     const opitaiPakAudio = document.getElementById('opitaiPakAudio');
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
-    const soundBtn = document.getElementById('soundBtn');
     const gameScreenEl = document.getElementById('gameScreen');
     const dropZoneEl = document.getElementById('dropZone');
     const choiceZoneEl = document.getElementById('choiceZone');
@@ -21,21 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPortalData = {};
     let currentLayoutId = null;
     let isTurnActive = false;
-    let isMuted = false;
     let availableSlots = [];
     let activeSlotData = null;
 
     // --- ОСНОВНА ЛОГИКА ---
-
     async function initializeApp() {
         try {
             const [themesResponse, portalsResponse] = await Promise.all([
                 fetch('themes.json'),
                 fetch('portals.json')
             ]);
-            if (!themesResponse.ok || !portalsResponse.ok) {
-                throw new Error('Конфигурационните файлове не са намерени.');
-            }
+            if (!themesResponse.ok || !portalsResponse.ok) throw new Error('Config files not found');
+            
             const themesData = await themesResponse.json();
             const portalsData = await portalsResponse.json();
             allItems = themesData.allItems;
@@ -44,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupEventListeners();
             showStartScreen();
         } catch (error) {
-            console.error("Грешка при инициализация:", error);
+            console.error("Initialization Error:", error);
             document.body.innerHTML = `<h1>Грешка при зареждане. Проверете конзолата (F12).</h1>`;
         }
     }
@@ -77,9 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
             winScreenEl.classList.add('hidden');
             startTurnBtn.classList.remove('hidden');
             gameMessageEl.textContent = 'Натисни "СТАРТ", за да светне кръгче!';
-            bodyEl.style.backgroundImage = `url('${currentPortalData.background}')`;
+            // ПРОМЯНА: Задаваме фона на dropZone, не на body
+            dropZoneEl.style.backgroundImage = `url('${currentPortalData.background}')`; 
             gameTitleEl.textContent = currentPortalData.name;
-            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="slot-highlight hidden"></div>'; 
+            dropZoneEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>'; 
             
             availableSlots = [...levelData.slots];
             const choicePool = generateChoicePool(levelData);
@@ -89,30 +86,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- ТУК Е КОРЕКЦИЯТА ЗА БРОЯ НА КАРТИНКИТЕ ---
     function generateChoicePool(levelData) {
         const correctItemsArray = [];
-        // За всеки слот в нивото, намираме по една подходяща картинка
         levelData.slots.forEach(slot => {
             const itemsForSlot = allItems.filter(item => slot.index.includes(item.index));
             if (itemsForSlot.length > 0) {
-                // Избираме случайна от възможните за този слот
                 const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
                 correctItemsArray.push(randomItem);
             }
         });
 
-        // Ако по някаква причина броят не е точен, добавяме още, за да гарантираме 6
-        while (correctItemsArray.length < levelData.slots.length) {
-             const randomItem = allItems[Math.floor(Math.random() * allItems.length)];
-             if (!correctItemsArray.includes(randomItem)) {
-                 correctItemsArray.push(randomItem);
-             }
+        // Гарантираме, че имаме картинка за всеки слот
+        if (correctItemsArray.length < levelData.slots.length) {
+            console.warn("Не са намерени достатъчно уникални картинки за всички слотове.");
         }
 
-        const distractorItems = allItems.filter(item => 
-            !correctItemsArray.some(correct => correct.id === item.id)
-        );
+        const distractorItems = allItems.filter(item => !correctItemsArray.some(correct => correct.id === item.id));
         const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
         return shuffleArray([...correctItemsArray, ...finalDistractors]);
     }
@@ -155,9 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
             isTurnActive = false;
             bravoAudio.play();
             
-            const placedImg = document.createElement('div');
+            const placedImg = document.createElement('img');
+            placedImg.src = chosenItem.image;
             placedImg.className = 'placed-image';
-            placedImg.innerHTML = `<img src="${chosenItem.image}" alt="${chosenItem.name}">`;
             placedImg.style.top = activeSlotData.position.top;
             placedImg.style.left = activeSlotData.position.left;
             placedImg.style.width = activeSlotData.diameter;
@@ -195,14 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function showStartScreen() {
         bodyEl.style.backgroundImage = 'none';
-        bodyEl.style.backgroundColor = '#2c3e50';
+        gameScreenEl.classList.remove('visible');
         gameScreenEl.classList.add('hidden');
         startScreenEl.classList.remove('hidden');
     }
 
     function showGameScreen() {
         startScreenEl.classList.add('hidden');
-        gameScreenEl.classList.remove('hidden');
         gameScreenEl.classList.add('visible');
     }
 
