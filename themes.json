@@ -1,12 +1,20 @@
 {
   "allItems": [
-    { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "index": "p" },
-    { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "index": "p" },
-    { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "index": "r" },
-    { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "index": "r" },
-    { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "index": "s" },
-    { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "index": "s" },
-    { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "index": "h" },
-    { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "index": "i" }
+    { "id": "cat", "name": "Котка", "image": "images/h/cat.jpg", "sound": "", "index": "h" },
+    { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "sound": "audio/animals/dog.mp3", "index": "h" },
+    { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "sound": "audio/cars/train.mp3", "index": "i" },
+    { "id": "chicken", "name": "Кокошка", "image": "images/p/chicken.png", "sound": "audio/birds/chicken.mp3", "index": "p" },
+    { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "sound": "", "index": "p" },
+    { "id": "duck", "name": "Патица", "image": "images/p/duck.png", "sound": "audio/birds/duck.mp3", "index": "p" },
+    { "id": "rooster", "name": "Петел", "image": "images/p/rooster.png", "sound": "audio/birds/rooster.mp3", "index": "p" },
+    { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "sound": "audio/birds/turkey.mp3", "index": "p" },
+    { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "sound": "audio/cars/bus.mp3", "index": "r" },
+    { "id": "firetruck", "name": "Пожарна", "image": "images/r/firetruck.jpg", "sound": "audio/cars/firetruck.mp3", "index": "r" },
+    { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "sound": "audio/cars/truck-horn.mp3", "index": "r" },
+    { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "sound": "audio/cars/airplane.mp3", "index": "s" },
+    { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "sound": "audio/birds/crow.mp3", "index": "s" },
+    { "id": "dove", "name": "Гълъб", "image": "images/s/dove.png", "sound": "audio/birds/dove.mp3", "index": "s" },
+    { "id": "falcon", "name": "Сокол", "image": "images/s/falcon.png", "sound": "audio/birds/falcon.mp3", "index": "s" },
+    { "id": "robin", "name": "Червеношийка", "image": "images/s/robin.png", "sound": "audio/birds/robin.mp3", "index": "s" }
   ]
 }
