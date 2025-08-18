@@ -8,36 +8,44 @@
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 </head>
 <body>
-    <div id="startScreen" class="screen visible">
-        <h1 class="title">Къде искаш да играеш?</h1>
-        <div id="portalContainer"></div>
+    <div id="game-wrapper">
+        <div id="startScreen" class="screen visible">
+            <h1 class="title">Къде искаш да играеш?</h1>
+            <div id="portalContainer"></div>
+        </div>
+        
+        <div id="gameScreen" class="screen hidden">
+            <div class="game-header">
+                <button id="backToMenuBtn" class="top-btn">☰</button>
+                <h1 id="gameTitle" class="title"></h1>
+                <div id="gameMessage"></div>
+            </div>
+            
+            <div id="dropZone">
+                <div id="gameBoard"></div>
+                <div id="feedbackMessage"></div>
+            </div>
+            
+            <div class="game-footer">
+                <div id="startTurnContainer">
+                    <button id="startTurnBtn" class="game-btn">СТАРТ</button>
+                </div>
+                <div id="choiceZoneContainer">
+                    <div id="choiceZone"></div>
+                </div>
+            </div>
+            
+            <div id="winScreen" class="win-screen hidden">
+                <button id="winScreenMenuBtn" class="top-btn">☰</button>
+                <div id="winMessage" class="win-message">БРАВО!</div>
+                <button id="playAgainBtn" class="game-btn">Нова игра</button>
+            </div>
+        </div>
     </div>
-    
-    <div id="gameScreen" class="screen hidden">
-        <div class="game-header">
-            <button id="backToMenuBtn" class="top-btn">☰</button>
-            <h1 id="gameTitle" class="title"></h1>
-            <div id="gameMessage"></div>
-        </div>
-        
-        <div id="dropZone">
-            <div id="gameBoard"></div>
-            <div id="feedbackMessage"></div>
-        </div>
-        
-        <div class="game-footer">
-            <div id="startTurnContainer">
-                <button id="startTurnBtn" class="game-btn">СТАРТ</button>
-            </div>
-            <div id="choiceZoneContainer">
-                <div id="choiceZone"></div>
-            </div>
-        </div>
-        
-        <div id="winScreen" class="win-screen hidden">
-            <button id="winScreenMenuBtn" class="top-btn">☰</button>
-            <div id="winMessage" class="win-message">БРАВО!</div>
-            <button id="playAgainBtn" class="game-btn">Нова игра</button>
+
+    <div id="orientation-overlay" class="screen hidden">
+        <div class="orientation-message">
+            <h1>Моля, завъртете устройството си в хоризонтален (landscape) режим, за да играете.</h1>
         </div>
     </div>
 
