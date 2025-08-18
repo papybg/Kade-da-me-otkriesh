@@ -285,6 +285,16 @@ html, body {
     0%, 100% { transform: scale(1); text-shadow: 0 0 20px var(--slot-highlight); }
     50% { transform: scale(1.1); text-shadow: 0 0 40px var(--slot-highlight); }
 }
+/* Стилове за съобщението за ориентация */
+#orientation-overlay {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 9999;
+}
+.orientation-message {
+    padding: 2rem;
+}
 @media (orientation: landscape) and (max-height: 600px) {
     .game-header { padding: 5px 0; }
     #dropZone { flex-grow: 0.7; }
