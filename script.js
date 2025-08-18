@@ -1,8 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ДЕФИНИРАНЕ НА ЕЛЕМЕНТИТЕ ---
-    const bodyEl = document.body;
-    const bravoAudio = document.getElementById('bravoAudio');
-    const opitaiPakAudio = document.getElementById('opitaiPakAudio');
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
     const gameScreenEl = document.getElementById('gameScreen');
@@ -15,40 +12,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const playAgainBtn = document.getElementById('playAgainBtn');
     const startTurnBtn = document.getElementById('startTurnBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
+    const feedbackMessageEl = document.getElementById('feedbackMessage');
+    const winScreenMenuBtn = document.getElementById('winScreenMenuBtn');
 
+    // --- АУДИО СИСТЕМА с Tone.js ---
+    let bravoSound, opitaiPakSound;
+    let audioInitialized = false;
+
+    function initializeAudio() {
+        if (audioInitialized || typeof Tone === 'undefined') return;
+        try {
+            Tone.start();
+            bravoSound = new Tone.Synth({ oscillator: { type: 'sine' } }).toDestination();
+            opitaiPakSound = new Tone.Synth({ oscillator: { type: 'square' } }).toDestination();
+            audioInitialized = true;
+        } catch (e) {
+            console.error("Грешка при инициализиране на аудиото:", e);
+        }
+    }
+    
     // --- ПРОМЕНЛИВИ ЗА СЪСТОЯНИЕТО ---
     let allItems = [];
+    let portalsData = [];
+    let layoutsData = {};
     let currentPortalData = {};
     let currentLayoutId = null;
     let isTurnActive = false;
     let availableSlots = [];
     let activeSlotData = null;
-    let placedItems = {};
-    let correctAnswers = 0;
     let totalSlots = 0;
-    
+
+    // --- ВГРАДЕНИ ДАННИ ---
+    async function loadGameData() {
+        const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/";
+        
+        const themesResponse = await fetch(baseURL + 'themes.json');
+        const themesData = await themesResponse.json();
+        allItems = themesData.allItems.map(item => ({...item, image: baseURL + item.image }));
+
+        const portalsResponse = await fetch(baseURL + 'portals.json');
+        const portalsDataFromServer = await portalsResponse.json();
+        portalsData = portalsDataFromServer.portals.map(portal => ({
+            ...portal,
+            icon: baseURL + portal.icon
+        }));
+        
+        for (const portal of portalsData) {
+            for (const layoutId of portal.layouts) {
+                if (!layoutsData[layoutId]) {
+                    const layoutResponse = await fetch(`${baseURL}assets/layouts/${layoutId}.json`);
+                    const layoutJson = await layoutResponse.json();
+                    layoutsData[layoutId] = {
+                        ...layoutJson,
+                        background: baseURL + layoutJson.background
+                    };
+                }
+            }
+        }
+    }
+
     // --- ИНИЦИАЛИЗИРАНЕ НА ПРИЛОЖЕНИЕТО ---
     async function initializeApp() {
         try {
-            const [themesResponse, portalsResponse] = await Promise.all([
-                fetch('themes.json'),
-                fetch('portals.json')
-            ]);
-            
-            if (!themesResponse.ok || !portalsResponse.ok) {
-                throw new Error('Конфигурационните файлове не бяха намерени');
-            }
-            
-            const themesData = await themesResponse.json();
-            const portalsData = await portalsResponse.json();
-            
-            allItems = themesData.allItems;
-            renderPortals(portalsData.portals);
+            await loadGameData();
+            renderPortals(portalsData);
             setupEventListeners();
         } catch (error) {
             console.error("Грешка при инициализация:", error);
-            gameMessageEl.textContent = "Грешка при зареждане на играта";
-            gameMessageEl.style.backgroundColor = 'rgba(220, 53, 69, 0.9)';
+            portalContainerEl.innerHTML = `<p style="color:red;">Грешка при зареждане на играта. Проверете конзолата за повече информация.</p>`;
         }
     }
 
@@ -58,10 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         portals.forEach(portal => {
             const portalEl = document.createElement('div');
             portalEl.className = 'portal';
-            portalEl.innerHTML = `
-                <img src="${portal.icon}" alt="${portal.name}">
-                <div class="portal-name">${portal.name}</div>
-            `;
+            portalEl.innerHTML = `<img src="${portal.icon}" alt="${portal.name}"><div class="portal-name">${portal.name}</div>`;
             portalEl.addEventListener('click', () => startGame(portal));
             portalContainerEl.appendChild(portalEl);
         });
@@ -69,92 +97,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- СТАРТИРАНЕ НА ИГРАТА ---
     function startGame(portal) {
+        initializeAudio();
         currentPortalData = portal;
+        startScreenEl.classList.remove('visible');
         startScreenEl.classList.add('hidden');
         gameScreenEl.classList.remove('hidden');
         gameScreenEl.classList.add('visible');
         gameTitleEl.textContent = portal.name;
-        loadNextLayout();
-    }
-
-    // --- ЗАРЕЖДАНЕ НА СЛЕДВАЩОТО НИВО ---
-    function loadNextLayout() {
-        if (!currentPortalData.layouts || currentPortalData.layouts.length === 0) {
-            gameMessageEl.textContent = "Няма налични нива за този портал";
-            return;
-        }
-        
-        // Зареждане на следващото ниво или първото ако няма текущо
-        const nextIndex = currentLayoutId ? 
-            (currentPortalData.layouts.indexOf(currentLayoutId) + 1) : 0;
-        
-        if (nextIndex >= currentPortalData.layouts.length) {
-            winScreenEl.classList.remove('hidden');
-            winMessageEl.textContent = "ПРЕМИНА ВСИЧКИ НИВА!";
-            return;
-        }
-        
-        currentLayoutId = currentPortalData.layouts[nextIndex];
+        currentLayoutId = portal.layouts[0];
         loadLayout(currentLayoutId);
     }
-
+    
     // --- ЗАРЕЖДАНЕ НА КОНКРЕТНО НИВО ---
-    async function loadLayout(layoutId) {
-        try {
-            const response = await fetch(`assets/layouts/${layoutId}.json`);
-            if (!response.ok) throw new Error(`Нивото ${layoutId} не бе намерено`);
-            
-            const levelData = await response.json();
-            resetGameState();
-            
-            // Зареждане на фона
-            gameBoardEl.style.backgroundImage = `url('${levelData.background}')`;
-            
-            // Създаване на слотовете
-            availableSlots = [...levelData.slots];
-            totalSlots = availableSlots.length;
-            createSlots(availableSlots);
-            
-            // Генериране на изборите
-            const choicePool = generateChoicePool(levelData);
-            renderChoiceZone(choicePool);
-            
-            // Подготвяне на интерфейса
-            gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
-            gameMessageEl.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-            startTurnBtn.classList.remove('hidden');
-            
-        } catch (error) {
-            console.error(`Грешка при зареждане на ниво ${layoutId}:`, error);
-            gameMessageEl.textContent = `Грешка при зареждане на ниво ${layoutId}`;
-            gameMessageEl.style.backgroundColor = 'rgba(220, 53, 69, 0.9)';
+    function loadLayout(layoutId) {
+        winScreenEl.classList.add('hidden');
+        const levelData = layoutsData[layoutId];
+        if (!levelData) {
+            console.error(`Нивото ${layoutId} не бе намерено`);
+            return;
         }
+        resetGameState();
+        gameBoardEl.style.backgroundImage = `url('${levelData.background}')`;
+        availableSlots = JSON.parse(JSON.stringify(levelData.slots));
+        totalSlots = availableSlots.length;
+        createSlots(availableSlots);
+        const choicePool = generateChoicePool(levelData);
+        renderChoiceZone(choicePool);
+        gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
+        startTurnBtn.classList.remove('hidden');
     }
 
     // --- ГЕНЕРИРАНЕ НА ИЗБОРИТЕ ---
     function generateChoicePool(levelData) {
-        const correctItems = [];
-        const usedItems = new Set();
-        
-        // Избор на по една правилна картинка за всеки слот
+        const correctItems = new Map();
         levelData.slots.forEach(slot => {
-            const possibleItems = allItems.filter(item => 
-                slot.index.includes(item.index) && !usedItems.has(item.id)
-            );
-            
+            const possibleItems = allItems.filter(item => slot.index.includes(item.index));
             if (possibleItems.length > 0) {
                 const randomItem = possibleItems[Math.floor(Math.random() * possibleItems.length)];
-                correctItems.push(randomItem);
-                usedItems.add(randomItem.id);
+                if (!correctItems.has(randomItem.id)) correctItems.set(randomItem.id, randomItem);
             }
         });
-        
-        // Добавяне на дистрактори до 8 общо
-        const distractorCount = 8 - correctItems.length;
-        const possibleDistractors = allItems.filter(item => !usedItems.has(item.id));
-        const shuffledDistractors = shuffleArray(possibleDistractors).slice(0, distractorCount);
-        
-        return shuffleArray([...correctItems, ...shuffledDistractors]);
+        const correctItemsArray = Array.from(correctItems.values());
+        const distractorCount = 8 - correctItemsArray.length;
+        const possibleDistractors = allItems.filter(item => !correctItems.has(item.id));
+        const shuffledDistractors = shuffleArray(possibleDistractors).slice(0, Math.max(0, distractorCount));
+        return shuffleArray([...correctItemsArray, ...shuffledDistractors]);
     }
 
     // --- РЕНДИРАНЕ НА ЗОНА ЗА ИЗБОР ---
@@ -164,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = document.createElement('img');
             img.src = item.image;
             img.alt = item.name;
-            img.dataset.id = item.id;
             img.classList.add('choice-item');
             img.addEventListener('click', () => handleChoiceClick(item, img));
             choiceZoneEl.appendChild(img);
@@ -181,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slotEl.style.height = slot.diameter;
             slotEl.style.top = slot.position.top;
             slotEl.style.left = slot.position.left;
-            slotEl.dataset.index = index;
+            slotEl.dataset.originalIndex = index;
             gameBoardEl.appendChild(slotEl);
         });
     }
@@ -190,35 +176,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function startNewTurn() {
         isTurnActive = true;
         startTurnBtn.classList.add('hidden');
-        gameMessageEl.textContent = "Намери правилното място!";
         activateNextSlot();
     }
 
     // --- АКТИВИРАНЕ НА СЛЕДВАЩ СЛОТ ---
     function activateNextSlot() {
-        // Деактивиране на текущия активен слот
         if (activeSlotData) {
-            const prevSlot = document.querySelector(`.slot[data-index="${activeSlotData.index}"]`);
+            const prevSlot = document.querySelector(`.slot[data-original-index="${activeSlotData.originalIndex}"]`);
             if (prevSlot) prevSlot.classList.remove('active');
         }
         
-        // Активиране на следващия слот
         if (availableSlots.length > 0) {
-            activeSlotData = {
-                slot: availableSlots[0],
-                index: availableSlots[0].index,
-                position: availableSlots[0].position
-            };
-            
-            const activeSlotEl = document.querySelector(`.slot[data-index="${availableSlots[0].index}"]`);
+            activeSlotData = { ...availableSlots[0], originalIndex: totalSlots - availableSlots.length };
+            const activeSlotEl = document.querySelector(`.slot[data-original-index="${activeSlotData.originalIndex}"]`);
             if (activeSlotEl) {
                 activeSlotEl.classList.add('active');
-                gameMessageEl.textContent = `Намери мястото за ${availableSlots[0].index.join('/')}`;
+                gameMessageEl.textContent = `Какво ще има тук?`;
             }
         } else {
-            // Няма повече слотове - победа!
-            bravoAudio.play();
-            winScreenEl.classList.remove('hidden');
+            showFeedback(true, "БРАВО!");
+            if(bravoSound) bravoSound.triggerAttackRelease("C5", "0.5s");
+            setTimeout(() => {
+                winMessageEl.textContent = "БРАВО, ДА ОПИТАМЕ ПАК!";
+                winScreenEl.classList.remove('hidden');
+            }, 1500);
             activeSlotData = null;
         }
     }
@@ -227,37 +208,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleChoiceClick(chosenItem, chosenImgElement) {
         if (!isTurnActive || !activeSlotData || chosenImgElement.classList.contains('used')) return;
         
-        // Проверка дали изборът е валиден за активния слот
-        const isValid = activeSlotData.slot.index.includes(chosenItem.index);
+        const isValid = activeSlotData.index.includes(chosenItem.index);
         
         if (isValid) {
-            // Правилен избор
-            bravoAudio.currentTime = 0;
-            bravoAudio.play();
-            
-            // Поставяне на картинката в слота
+            showFeedback(true, "Браво!");
+            if(bravoSound) bravoSound.triggerAttackRelease("C5", "0.5s");
             placeImageInSlot(chosenItem, activeSlotData);
-            
-            // Маркиране на картинката като използвана
             chosenImgElement.classList.add('used');
-            
-            // Премахване на слота от наличните
             availableSlots.shift();
-            correctAnswers++;
-            
-            // Активиране на следващия слот
-            setTimeout(activateNextSlot, 800);
+            setTimeout(activateNextSlot, 3000);
         } else {
-            // Грешен избор
-            opitaiPakAudio.currentTime = 0;
-            opitaiPakAudio.play();
-            
-            // Анимация за грешка
+            showFeedback(false, "Опитай пак!");
+            if(opitaiPakSound) opitaiPakSound.triggerAttackRelease("C3", "0.5s");
             chosenImgElement.style.borderColor = 'red';
-            setTimeout(() => {
-                if (chosenImgElement) chosenImgElement.style.borderColor = 'white';
-            }, 500);
+            setTimeout(() => { if (chosenImgElement) chosenImgElement.style.borderColor = 'white'; }, 500);
         }
+    }
+    
+    // --- ПОКАЗВАНЕ НА ОБРАТНА ВРЪЗКА ---
+    function showFeedback(isCorrect, message) {
+        feedbackMessageEl.textContent = message;
+        feedbackMessageEl.className = isCorrect ? 'correct' : 'wrong';
+        feedbackMessageEl.classList.add('show');
+        setTimeout(() => { feedbackMessageEl.classList.remove('show'); }, 1500);
     }
 
     // --- ПОСТАВЯНЕ НА КАРТИНКА В СЛОТ ---
@@ -266,15 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
         img.src = item.image;
         img.alt = item.name;
         img.classList.add('placed-image');
-        img.style.width = slotData.slot.diameter;
-        img.style.height = slotData.slot.diameter;
-        img.style.top = slotData.slot.position.top;
-        img.style.left = slotData.slot.position.left;
-        img.dataset.itemId = item.id;
+        img.style.width = slotData.diameter;
+        img.style.height = slotData.diameter;
+        img.style.top = slotData.position.top;
+        img.style.left = slotData.position.left;
         gameBoardEl.appendChild(img);
-        
-        // Запазване на поставената картинка
-        placedItems[slotData.index] = item;
     }
 
     // --- НУЛИРАНЕ НА СЪСТОЯНИЕТО НА ИГРАТА ---
@@ -282,24 +251,26 @@ document.addEventListener('DOMContentLoaded', () => {
         isTurnActive = false;
         availableSlots = [];
         activeSlotData = null;
-        placedItems = {};
-        correctAnswers = 0;
         totalSlots = 0;
         winScreenEl.classList.add('hidden');
         startTurnBtn.classList.remove('hidden');
     }
 
+    // --- ВРЪЩАНЕ В ГЛАВНОТО МЕНЮ ---
+    function showMenu() {
+        gameScreenEl.classList.remove('visible');
+        gameScreenEl.classList.add('hidden');
+        winScreenEl.classList.add('hidden');
+        startScreenEl.classList.remove('hidden');
+        startScreenEl.classList.add('visible');
+    }
+
     // --- НАСТРОЙКА НА СЛУШАТЕЛИТЕ ---
     function setupEventListeners() {
         startTurnBtn.addEventListener('click', startNewTurn);
-        playAgainBtn.addEventListener('click', loadNextLayout);
-        
-        backToMenuBtn.addEventListener('click', () => {
-            gameScreenEl.classList.remove('visible');
-            gameScreenEl.classList.add('hidden');
-            startScreenEl.classList.remove('hidden');
-            startScreenEl.classList.add('visible');
-        });
+        playAgainBtn.addEventListener('click', () => loadLayout(currentLayoutId));
+        backToMenuBtn.addEventListener('click', showMenu);
+        winScreenMenuBtn.addEventListener('click', showMenu);
     }
 
     // --- ПОМОЩНИ ФУНКЦИИ ---
