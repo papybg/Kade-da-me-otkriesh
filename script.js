@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ДЕФИНИРАНЕ НА ЕЛЕМЕНТИТЕ ---
+    const gameWrapper = document.getElementById('game-wrapper');
+    const orientationOverlay = document.getElementById('orientation-overlay');
     const startScreenEl = document.getElementById('startScreen');
     const portalContainerEl = document.getElementById('portalContainer');
     const gameScreenEl = document.getElementById('gameScreen');
@@ -22,7 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function initializeAudio() {
         if (audioInitialized || typeof Tone === 'undefined') return;
         try {
+            // Tone.start() е нужно за стартиране на аудиото след действие от потребителя
             Tone.start();
+            // Пускаме кратък, тих звук, за да "отключим" аудиото в браузъра
+            const silentOsc = new Tone.Oscillator().toDestination();
+            silentOsc.start().stop("+0.1");
+
             bravoSound = new Tone.Synth({ oscillator: { type: 'sine' } }).toDestination();
             opitaiPakSound = new Tone.Synth({ oscillator: { type: 'square' } }).toDestination();
             audioInitialized = true;
@@ -42,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeSlotData = null;
     let totalSlots = 0;
 
-    // --- ВГРАДЕНИ ДАННИ ---
+    // --- ЗАРЕЖДАНЕ НА ДАННИТЕ ---
     async function loadGameData() {
         const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/";
         
@@ -77,9 +84,24 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadGameData();
             renderPortals(portalsData);
             setupEventListeners();
+            checkOrientation(); // Първоначална проверка на ориентацията
         } catch (error) {
             console.error("Грешка при инициализация:", error);
-            portalContainerEl.innerHTML = `<p style="color:red;">Грешка при зареждане на играта. Проверете конзолата за повече информация.</p>`;
+            portalContainerEl.innerHTML = `<p style="color:red;">Грешка при зареждане на играта.</p>`;
+        }
+    }
+
+    // --- ПРОВЕРКА НА ОРИЕНТАЦИЯТА ---
+    function checkOrientation() {
+        // Проверяваме дали височината е по-голяма от ширината (портретен режим)
+        if (window.innerHeight > window.innerWidth) {
+            gameWrapper.classList.add('hidden');
+            orientationOverlay.classList.remove('hidden');
+            orientationOverlay.classList.add('visible');
+        } else {
+            gameWrapper.classList.remove('hidden');
+            orientationOverlay.classList.add('hidden');
+            orientationOverlay.classList.remove('visible');
         }
     }
 
@@ -271,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playAgainBtn.addEventListener('click', () => loadLayout(currentLayoutId));
         backToMenuBtn.addEventListener('click', showMenu);
         winScreenMenuBtn.addEventListener('click', showMenu);
+        window.addEventListener('resize', checkOrientation); // Проверка при промяна на размера/ориентацията
     }
 
     // --- ПОМОЩНИ ФУНКЦИИ ---
