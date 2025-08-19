@@ -78,18 +78,16 @@
         }
         #gameScreen {
             padding: 10px;
-            justify-content: flex-start; /* Променено */
-            align-items: center; /* Променено */
+            justify-content: flex-start;
+            align-items: center;
         }
         .game-header {
             width: 100%;
-            height: 15%; /* FIX: Задаване на твърда височина */
             position: relative;
             text-align: center;
             z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-shrink: 0; /* Не позволяваме на хедъра да се свива */
+            padding: 10px 0;
         }
         .top-btn {
             position: absolute;
@@ -120,10 +118,8 @@
             border-radius: 50px;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
             color: #333;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
+            display: inline-block;
+            margin-top: 8px;
             font-weight: bold;
             white-space: nowrap;
         }
@@ -154,12 +150,13 @@
         }
         #dropZone {
             width: 100%;
-            height: 65%; /* FIX: Задаване на твърда височина */
+            flex-grow: 1; /* Позволяваме на игралното поле да заеме оставащото място */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 0;
             position: relative;
+            margin: 10px 0;
         }
         #gameBoard {
             position: relative;
@@ -234,8 +231,7 @@
         }
         .game-footer {
             width: 100%;
-            height: 20%; /* FIX: Задаване на твърда височина */
-            padding-top: 10px;
+            flex-shrink: 0; /* Не позволяваме на футъра да се свива */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -268,21 +264,21 @@
             overflow-x: auto;
             background-color: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
-            flex-grow: 1; /* FIX: Заема оставащото място във футъра */
+            padding: 10px;
             display: flex;
             align-items: center;
+            min-height: 100px; /* Минимална височина за лентата */
         }
         #choiceZone {
             display: flex;
             gap: 12px;
-            padding: 0 15px;
-            justify-content: flex-start; /* Променено */
+            justify-content: flex-start;
             min-width: min-content;
-            height: 90%; /* FIX: Височината е процент от контейнера */
+            height: 100%;
         }
         .choice-item {
-            height: 100%; /* FIX: Височината е 100% от родителя */
-            width: auto; /* FIX: Ширината се наглася автоматично */
+            height: 100%;
+            width: auto;
             aspect-ratio: 1/1;
             object-fit: contain;
             background-color: white;
@@ -384,79 +380,45 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* --- ЛОГИКА ЗА ПОКАЗВАНЕ/СКРИВАНЕ --- */
-        #game-wrapper, #orientation-overlay, #desktop-overlay {
-            display: none;
-        }
-
-        /* 1. Показваме играта само на мобилни/тъч устройства в landscape */
-        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
-            #game-wrapper {
-                display: block;
-            }
-        }
-
-        /* 2. Показваме съобщение за завъртане на мобилни/тъч устройства в portrait */
-        @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
-            #orientation-overlay {
-                display: flex;
-            }
-        }
-
-        /* 3. Показваме съобщение за десктоп на устройства с мишка/по-големи екрани */
-        @media (hover: hover) and (pointer: fine), (min-width: 1025px) {
-            #desktop-overlay {
-                display: flex;
+        @media (orientation: portrait) {
+            #portalContainer {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
 </head>
 <body>
-    <div id="game-wrapper">
-        <div id="startScreen" class="screen visible">
-            <h1 class="title">Къде искаш да играеш?</h1>
-            <div id="portalContainer"></div>
+    <div id="startScreen" class="screen visible">
+        <h1 class="title">Къде искаш да играеш?</h1>
+        <div id="portalContainer"></div>
+    </div>
+    
+    <div id="gameScreen" class="screen hidden">
+        <div class="game-header">
+            <button id="backToMenuBtn" class="top-btn">☰</button>
+            <h1 id="gameTitle" class="title"></h1>
+            <div id="gameMessage"></div>
         </div>
         
-        <div id="gameScreen" class="screen hidden">
-            <div class="game-header">
-                <button id="backToMenuBtn" class="top-btn">☰</button>
-                <h1 id="gameTitle" class="title"></h1>
-                <div id="gameMessage"></div>
+        <div id="dropZone">
+            <div id="gameBoard"></div>
+            <div id="feedbackMessage"></div>
+        </div>
+        
+        <div class="game-footer">
+            <div id="startTurnContainer">
+                <button id="startTurnBtn" class="game-btn">СТАРТ</button>
             </div>
-            
-            <div id="dropZone">
-                <div id="gameBoard"></div>
-                <div id="feedbackMessage"></div>
-            </div>
-            
-            <div class="game-footer">
-                <div id="startTurnContainer">
-                    <button id="startTurnBtn" class="game-btn">СТАРТ</button>
-                </div>
-                <div id="choiceZoneContainer">
-                    <div id="choiceZone"></div>
-                </div>
-            </div>
-            
-            <div id="winScreen" class="win-screen hidden">
-                <button id="winScreenMenuBtn" class="top-btn">☰</button>
-                <div id="winMessage" class="win-message">БРАВО!</div>
-                <button id="playAgainBtn" class="game-btn">Нова игра</button>
+            <div id="choiceZoneContainer">
+                <div id="choiceZone"></div>
             </div>
         </div>
-    </div>
-
-    <div id="orientation-overlay" class="screen message-overlay hidden">
-        <div class="message-box">
-            <h1>Моля, завъртете устройството си в хоризонтален (landscape) режим, за да играете.</h1>
-        </div>
-    </div>
-
-    <div id="desktop-overlay" class="screen message-overlay hidden">
-        <div class="message-box">
-            <h1>Тази игра е предназначена само за телефони в хоризонтален режим.</h1>
+        
+        <div id="winScreen" class="win-screen hidden">
+            <button id="winScreenMenuBtn" class="top-btn">☰</button>
+            <div id="winMessage" class="win-message">БРАВО!</div>
+            <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
     
@@ -477,9 +439,6 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- ДЕФИНИРАНЕ НА ЕЛЕМЕНТИТЕ ---
-        const gameWrapper = document.getElementById('game-wrapper');
-        const orientationOverlay = document.getElementById('orientation-overlay');
-        const desktopOverlay = document.getElementById('desktop-overlay');
         const startScreenEl = document.getElementById('startScreen');
         const portalContainerEl = document.getElementById('portalContainer');
         const gameScreenEl = document.getElementById('gameScreen');
