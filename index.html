@@ -478,30 +478,30 @@
 
         // --- ВГРАДЕНИ ДАННИ ---
         function loadGameData() {
-            const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/assets/";
+            // FIX: Премахваме baseURL и използваме относителни пътища
             allItems = [
-                { "id": "cat", "name": "Котка", "image": baseURL + "images/h/cat.jpg", "index": "h" },
-                { "id": "dog", "name": "Куче", "image": baseURL + "images/h/dog.jpg", "index": "h" },
-                { "id": "train", "name": "Влак", "image": baseURL + "images/i/train.jpg", "index": "i" },
-                { "id": "chicken", "name": "Кокошка", "image": baseURL + "images/p/chicken.png", "index": "p" },
-                { "id": "cow", "name": "Крава", "image": baseURL + "images/p/cow.png", "index": "p" },
-                { "id": "duck", "name": "Патица", "image": baseURL + "images/p/duck.png", "index": "p" },
-                { "id": "rooster", "name": "Петел", "image": baseURL + "images/p/rooster.png", "index": "p" },
-                { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "index": "p" },
-                { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "index": "r" },
-                { "id": "firetruck", "name": "Пожарна", "image": "images/r/firetruck.jpg", "index": "r" },
-                { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "index": "r" },
-                { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "index": "s" },
-                { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "index": "s" },
-                { "id": "dove", "name": "Гълъб", "image": "images/s/dove.png", "index": "s" },
-                { "id": "falcon", "name": "Сокол", "image": "images/s/falcon.png", "index": "s" }
+                { "id": "cat", "name": "Котка", "image": "assets/images/h/cat.jpg", "index": "h" },
+                { "id": "dog", "name": "Куче", "image": "assets/images/h/dog.jpg", "index": "h" },
+                { "id": "train", "name": "Влак", "image": "assets/images/i/train.jpg", "index": "i" },
+                { "id": "chicken", "name": "Кокошка", "image": "assets/images/p/chicken.png", "index": "p" },
+                { "id": "cow", "name": "Крава", "image": "assets/images/p/cow.png", "index": "p" },
+                { "id": "duck", "name": "Патица", "image": "assets/images/p/duck.png", "index": "p" },
+                { "id": "rooster", "name": "Петел", "image": "assets/images/p/rooster.png", "index": "p" },
+                { "id": "turkey", "name": "Пуйка", "image": "assets/images/p/turkey.png", "index": "p" },
+                { "id": "bus", "name": "Автобус", "image": "assets/images/r/bus.jpg", "index": "r" },
+                { "id": "firetruck", "name": "Пожарна", "image": "assets/images/r/firetruck.jpg", "index": "r" },
+                { "id": "truck", "name": "Камион", "image": "assets/images/r/truck.jpg", "index": "r" },
+                { "id": "airplane", "name": "Самолет", "image": "assets/images/s/airplane.jpg", "index": "s" },
+                { "id": "crow", "name": "Врана", "image": "assets/images/s/crow.png", "index": "s" },
+                { "id": "dove", "name": "Гълъб", "image": "assets/images/s/dove.png", "index": "s" },
+                { "id": "falcon", "name": "Сокол", "image": "assets/images/s/falcon.png", "index": "s" }
             ];
-            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": baseURL + "icons/portal_dolina.png", "layouts": ["d1"]}];
+            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": "assets/icons/portal_dolina.png", "layouts": ["d1"]}];
             layoutsData = {
                 "d1": { 
                     "name": "Зелена долина", 
-                    "background_large": baseURL + "backgrounds/dolina-large.png",
-                    "background_small": baseURL + "backgrounds/dolina-small.png",
+                    "background_large": "assets/backgrounds/dolina-large.png",
+                    "background_small": "assets/backgrounds/dolina-small.png",
                     "slots": [ { "position": { "top": "35%", "left": "15%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "80%", "left": "80%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "68%", "left": "88%" }, "diameter": "18%", "index": ["p", "h"] }, { "position": { "top": "80%", "left": "30%" }, "diameter": "18%", "index": ["i"] }, { "position": { "top": "80%", "left": "65%" }, "diameter": "18%", "index": ["r"] }, { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] } ], "distractors": 2 }
             };
         }
