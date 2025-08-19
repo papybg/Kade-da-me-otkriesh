@@ -76,9 +76,9 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
         #gameScreen {
-            padding: 0; /* Премахваме вътрешния padding */
+            padding: 0;
             background-color: transparent;
-            justify-content: space-between; /* Разпределяме елементите */
+            justify-content: space-between;
         }
         #gameBoard {
             position: fixed;
@@ -88,7 +88,7 @@
             height: 100%;
             background-size: cover;
             background-position: center;
-            z-index: 1; /* Поставяме го най-отзад */
+            z-index: 1;
         }
         .game-header {
             width: 100%;
@@ -165,11 +165,11 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 2; /* Над фона, под контролите */
-            pointer-events: none; /* Позволява кликове да минават "през" него */
+            z-index: 2;
+            pointer-events: none;
         }
         #dropZone > * {
-            pointer-events: auto; /* Връщаме pointer-events за децата */
+            pointer-events: auto;
         }
         .slot {
             position: absolute;
@@ -266,14 +266,14 @@
             width: 100%;
             max-width: 1400px;
             overflow-x: auto;
-            padding: 10px;
+            padding: 5px; /* Намален padding */
             display: flex;
             align-items: center;
-            min-height: 100px;
+            min-height: 60px; /* Намалена височина */
         }
         #choiceZone {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: flex-start;
             min-width: min-content;
             height: 100%;
@@ -284,11 +284,11 @@
             aspect-ratio: 1/1;
             object-fit: contain;
             background-color: white;
-            border: 3px solid white;
-            border-radius: 10px;
+            border: 2px solid white;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
             flex-shrink: 0;
         }
         .choice-item:hover {
@@ -528,7 +528,6 @@
             if (!levelData) { console.error(`Нивото ${layoutId} не бе намерено`); return; }
             resetGameState();
             
-            // Проверка за мобилно устройство и избор на фон
             const isMobile = window.innerWidth < 768;
             const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
             gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
@@ -575,7 +574,7 @@
         // --- СЪЗДАВАНЕ НА СЛОТОВЕТЕ ---
         function createSlots(slots) {
             const dropZone = document.getElementById('dropZone');
-            dropZone.innerHTML = '<div id="feedbackMessage"></div>'; // Изчистваме само слотовете, запазваме feedback
+            dropZone.innerHTML = '<div id="feedbackMessage"></div>';
             slots.forEach((slot, index) => {
                 const slotEl = document.createElement('div');
                 slotEl.className = 'slot';
