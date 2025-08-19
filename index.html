@@ -377,6 +377,32 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* --- ЛОГИКА ЗА ПОКАЗВАНЕ/СКРИВАНЕ --- */
+        #game-wrapper, #orientation-overlay, #desktop-overlay {
+            display: none;
+        }
+
+        /* 1. Показваме играта само на мобилни/тъч устройства в landscape */
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+            #game-wrapper {
+                display: block;
+            }
+        }
+
+        /* 2. Показваме съобщение за завъртане на мобилни/тъч устройства в portrait */
+        @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+            #orientation-overlay {
+                display: flex;
+            }
+        }
+
+        /* 3. Показваме съобщение за десктоп на устройства с мишка/по-големи екрани */
+        @media (hover: hover) and (pointer: fine), (min-width: 1025px) {
+            #desktop-overlay {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
@@ -509,28 +535,6 @@
             loadGameData();
             renderPortals(portalsData);
             setupEventListeners();
-            checkDeviceAndOrientation();
-        }
-
-        // --- ПРОВЕРКА НА УСТРОЙСТВО И ОРИЕНТАЦИЯ ---
-        function checkDeviceAndOrientation() {
-            const isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-            const isPortrait = window.innerHeight > window.innerWidth;
-
-            if (!isMobile) {
-                desktopOverlay.style.display = 'flex';
-                gameWrapper.style.display = 'none';
-                orientationOverlay.style.display = 'none';
-            } else {
-                desktopOverlay.style.display = 'none';
-                if (isPortrait) {
-                    orientationOverlay.style.display = 'flex';
-                    gameWrapper.style.display = 'none';
-                } else {
-                    orientationOverlay.style.display = 'none';
-                    gameWrapper.style.display = 'block';
-                }
-            }
         }
 
         // --- РЕНДИРАНЕ НА ПОРТАЛИТЕ ---
