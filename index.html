@@ -36,7 +36,6 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 15px;
             background-color: #1a2a3a;
             justify-content: center;
             align-items: center;
@@ -77,22 +76,32 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
         #gameScreen {
-            padding: 10px;
-            justify-content: flex-start;
-            align-items: center;
+            padding: 0; /* Премахваме вътрешния padding */
+            background-color: transparent;
+            justify-content: space-between; /* Разпределяме елементите */
+        }
+        #gameBoard {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 1; /* Поставяме го най-отзад */
         }
         .game-header {
             width: 100%;
             position: relative;
             text-align: center;
             z-index: 10;
-            flex-shrink: 0; /* Не позволяваме на хедъра да се свива */
-            padding: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
         }
         .top-btn {
             position: absolute;
             top: 50%;
-            left: 10px;
+            left: 15px;
             transform: translateY(-50%);
             z-index: 100;
             width: 45px;
@@ -110,6 +119,8 @@
         #gameTitle {
             font-size: clamp(1.5rem, 3vw, 2.5rem);
             margin: 0;
+            color: white;
+            text-shadow: 2px 2px 4px black;
         }
         #gameMessage {
             font-size: clamp(1rem, 2vw, 1.2rem);
@@ -150,24 +161,15 @@
         }
         #dropZone {
             width: 100%;
-            flex-grow: 1; /* Позволяваме на игралното поле да заеме оставащото място */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 0;
-            position: relative;
-            margin: 10px 0;
-        }
-        #gameBoard {
-            position: relative;
-            width: 100%;
             height: 100%;
-            max-width: 1400px;
-            background-size: cover;
-            background-position: center;
-            border-radius: 15px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2; /* Над фона, под контролите */
+            pointer-events: none; /* Позволява кликове да минават "през" него */
+        }
+        #dropZone > * {
+            pointer-events: auto; /* Връщаме pointer-events за децата */
         }
         .slot {
             position: absolute;
@@ -231,10 +233,12 @@
         }
         .game-footer {
             width: 100%;
-            flex-shrink: 0; /* Не позволяваме на футъра да се свива */
+            z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
         }
         #startTurnContainer {
             margin-bottom: 10px;
@@ -262,12 +266,10 @@
             width: 100%;
             max-width: 1400px;
             overflow-x: auto;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
             padding: 10px;
             display: flex;
             align-items: center;
-            min-height: 100px; /* Минимална височина за лентата */
+            min-height: 100px;
         }
         #choiceZone {
             display: flex;
@@ -322,12 +324,6 @@
             0%, 100% { transform: scale(1); text-shadow: 0 0 20px var(--slot-highlight); }
             50% { transform: scale(1.1); text-shadow: 0 0 40px var(--slot-highlight); }
         }
-        .message-overlay {
-            z-index: 9999;
-        }
-        .message-box {
-            padding: 2rem;
-        }
         /* Gemini Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -380,12 +376,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        @media (orientation: portrait) {
-            #portalContainer {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
     </style>
 </head>
 <body>
@@ -395,6 +385,7 @@
     </div>
     
     <div id="gameScreen" class="screen hidden">
+        <div id="gameBoard"></div>
         <div class="game-header">
             <button id="backToMenuBtn" class="top-btn">☰</button>
             <h1 id="gameTitle" class="title"></h1>
@@ -402,7 +393,6 @@
         </div>
         
         <div id="dropZone">
-            <div id="gameBoard"></div>
             <div id="feedbackMessage"></div>
         </div>
         
@@ -492,7 +482,11 @@
             ];
             portalsData = [{"id": "dolina", "name": "зелена долина", "icon": baseURL + "assets/icons/portal_dolina.png", "layouts": ["d1"]}];
             layoutsData = {
-                "d1": { "name": "Зелена долина", "background": baseURL + "assets/backgrounds/dolina-large.png", "slots": [ { "position": { "top": "35%", "left": "15%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "80%", "left": "80%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "68%", "left": "88%" }, "diameter": "18%", "index": ["p", "h"] }, { "position": { "top": "80%", "left": "30%" }, "diameter": "18%", "index": ["i"] }, { "position": { "top": "80%", "left": "65%" }, "diameter": "18%", "index": ["r"] }, { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] } ], "distractors": 2 }
+                "d1": { 
+                    "name": "Зелена долина", 
+                    "background_large": baseURL + "assets/backgrounds/dolina-large.png",
+                    "background_small": baseURL + "assets/backgrounds/dolina-small.png",
+                    "slots": [ { "position": { "top": "35%", "left": "15%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "80%", "left": "80%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "68%", "left": "88%" }, "diameter": "18%", "index": ["p", "h"] }, { "position": { "top": "80%", "left": "30%" }, "diameter": "18%", "index": ["i"] }, { "position": { "top": "80%", "left": "65%" }, "diameter": "18%", "index": ["r"] }, { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] } ], "distractors": 2 }
             };
         }
 
@@ -533,7 +527,12 @@
             const levelData = layoutsData[layoutId];
             if (!levelData) { console.error(`Нивото ${layoutId} не бе намерено`); return; }
             resetGameState();
-            gameBoardEl.style.backgroundImage = `url('${levelData.background}')`;
+            
+            // Проверка за мобилно устройство и избор на фон
+            const isMobile = window.innerWidth < 768;
+            const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
+            gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
+
             availableSlots = JSON.parse(JSON.stringify(levelData.slots));
             totalSlots = availableSlots.length;
             createSlots(availableSlots);
@@ -575,7 +574,8 @@
 
         // --- СЪЗДАВАНЕ НА СЛОТОВЕТЕ ---
         function createSlots(slots) {
-            gameBoardEl.innerHTML = '';
+            const dropZone = document.getElementById('dropZone');
+            dropZone.innerHTML = '<div id="feedbackMessage"></div>'; // Изчистваме само слотовете, запазваме feedback
             slots.forEach((slot, index) => {
                 const slotEl = document.createElement('div');
                 slotEl.className = 'slot';
@@ -584,7 +584,7 @@
                 slotEl.style.top = slot.position.top;
                 slotEl.style.left = slot.position.left;
                 slotEl.dataset.originalIndex = index;
-                gameBoardEl.appendChild(slotEl);
+                dropZone.appendChild(slotEl);
             });
         }
 
@@ -639,10 +639,11 @@
         
         // --- ПОКАЗВАНЕ НА ОБРАТНА ВРЪЗКА ---
         function showFeedback(isCorrect, message) {
-            feedbackMessageEl.textContent = message;
-            feedbackMessageEl.className = isCorrect ? 'correct' : 'wrong';
-            feedbackMessageEl.classList.add('show');
-            setTimeout(() => { feedbackMessageEl.classList.remove('show'); }, 1500);
+            const feedbackEl = document.getElementById('feedbackMessage');
+            feedbackEl.textContent = message;
+            feedbackEl.className = isCorrect ? 'correct' : 'wrong';
+            feedbackEl.classList.add('show');
+            setTimeout(() => { feedbackEl.classList.remove('show'); }, 1500);
         }
 
         // --- ПОСТАВЯНЕ НА КАРТИНКА В СЛОТ ---
@@ -663,7 +664,7 @@
             btn.onclick = () => getFunFact(item);
             container.appendChild(img);
             container.appendChild(btn);
-            gameBoardEl.appendChild(container);
+            document.getElementById('dropZone').appendChild(container);
         }
 
         // --- GEMINI API ИНТЕГРАЦИЯ ---
@@ -725,7 +726,6 @@
             };
             modalCloseBtn.addEventListener('click', closeModal);
             modalContinueBtn.addEventListener('click', closeModal);
-            // Слушател за "отключване" на аудиото при първо докосване
             document.body.addEventListener('click', initializeAudio, { capture: true, once: true });
             document.body.addEventListener('touchstart', initializeAudio, { capture: true, once: true });
         }
