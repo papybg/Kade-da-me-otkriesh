@@ -97,6 +97,7 @@
             z-index: 10;
             padding: 10px;
             background: rgba(0,0,0,0.3);
+            height: 15%;
         }
         .top-btn {
             position: absolute;
@@ -239,6 +240,7 @@
             align-items: center;
             padding: 10px;
             background: rgba(0,0,0,0.3);
+            height: 25%;
         }
         #startTurnContainer {
             margin-bottom: 10px;
@@ -266,10 +268,10 @@
             width: 100%;
             max-width: 1400px;
             overflow-x: auto;
-            padding: 5px; /* Намален padding */
+            padding: 5px;
             display: flex;
             align-items: center;
-            min-height: 60px; /* Намалена височина */
+            flex-grow: 1;
         }
         #choiceZone {
             display: flex;
@@ -476,16 +478,30 @@
 
         // --- ВГРАДЕНИ ДАННИ ---
         function loadGameData() {
-            const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/";
+            const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/assets/";
             allItems = [
-                { "id": "cat", "name": "Котка", "image": baseURL + "assets/images/items/cat.jpg", "index": "h" }, { "id": "dog", "name": "Куче", "image": baseURL + "assets/images/items/dog.jpg", "index": "h" }, { "id": "train", "name": "Влак", "image": baseURL + "assets/images/items/train.jpg", "index": "i" }, { "id": "chicken", "name": "Кокошка", "image": baseURL + "assets/images/items/chicken.png", "index": "p" }, { "id": "cow", "name": "Крава", "image": baseURL + "assets/images/items/cow.png", "index": "p" }, { "id": "duck", "name": "Патица", "image": baseURL + "assets/images/items/duck.png", "index": "p" }, { "id": "rooster", "name": "Петел", "image": baseURL + "assets/images/items/rooster.png", "index": "p" }, { "id": "turkey", "name": "Пуйка", "image": baseURL + "assets/images/items/turkey.png", "index": "p" }, { "id": "bus", "name": "Автобус", "image": baseURL + "assets/images/items/bus.jpg", "index": "r" }, { "id": "firetruck", "name": "Пожарна", "image": baseURL + "assets/images/items/firetruck.jpg", "index": "r" }, { "id": "truck", "name": "Камион", "image": baseURL + "assets/images/items/truck.jpg", "index": "r" }, { "id": "airplane", "name": "Самолет", "image": baseURL + "assets/images/items/airplane.jpg", "index": "s" }, { "id": "crow", "name": "Врана", "image": baseURL + "assets/images/items/crow.png", "index": "s" }, { "id": "dove", "name": "Гълъб", "image": baseURL + "assets/images/items/dove.png", "index": "s" }, { "id": "falcon", "name": "Сокол", "image": baseURL + "assets/images/items/falcon.png", "index": "s" }
+                { "id": "cat", "name": "Котка", "image": baseURL + "images/h/cat.jpg", "index": "h" },
+                { "id": "dog", "name": "Куче", "image": baseURL + "images/h/dog.jpg", "index": "h" },
+                { "id": "train", "name": "Влак", "image": baseURL + "images/i/train.jpg", "index": "i" },
+                { "id": "chicken", "name": "Кокошка", "image": baseURL + "images/p/chicken.png", "index": "p" },
+                { "id": "cow", "name": "Крава", "image": baseURL + "images/p/cow.png", "index": "p" },
+                { "id": "duck", "name": "Патица", "image": baseURL + "images/p/duck.png", "index": "p" },
+                { "id": "rooster", "name": "Петел", "image": baseURL + "images/p/rooster.png", "index": "p" },
+                { "id": "turkey", "name": "Пуйка", "image": baseURL + "images/p/turkey.png", "index": "p" },
+                { "id": "bus", "name": "Автобус", "image": baseURL + "images/r/bus.jpg", "index": "r" },
+                { "id": "firetruck", "name": "Пожарна", "image": baseURL + "images/r/firetruck.jpg", "index": "r" },
+                { "id": "truck", "name": "Камион", "image": baseURL + "images/r/truck.jpg", "index": "r" },
+                { "id": "airplane", "name": "Самолет", "image": baseURL + "images/s/airplane.jpg", "index": "s" },
+                { "id": "crow", "name": "Врана", "image": baseURL + "images/s/crow.png", "index": "s" },
+                { "id": "dove", "name": "Гълъб", "image": baseURL + "images/s/dove.png", "index": "s" },
+                { "id": "falcon", "name": "Сокол", "image": baseURL + "images/s/falcon.png", "index": "s" }
             ];
-            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": baseURL + "assets/icons/portal_dolina.png", "layouts": ["d1"]}];
+            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": baseURL + "icons/portal_dolina.png", "layouts": ["d1"]}];
             layoutsData = {
                 "d1": { 
                     "name": "Зелена долина", 
-                    "background_large": baseURL + "assets/backgrounds/dolina-large.png",
-                    "background_small": baseURL + "assets/backgrounds/dolina-small.png",
+                    "background_large": baseURL + "backgrounds/dolina-large.png",
+                    "background_small": baseURL + "backgrounds/dolina-small.png",
                     "slots": [ { "position": { "top": "35%", "left": "15%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "80%", "left": "80%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "68%", "left": "88%" }, "diameter": "18%", "index": ["p", "h"] }, { "position": { "top": "80%", "left": "30%" }, "diameter": "18%", "index": ["i"] }, { "position": { "top": "80%", "left": "65%" }, "diameter": "18%", "index": ["r"] }, { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] } ], "distractors": 2 }
             };
         }
