@@ -493,7 +493,7 @@
 
         // --- ВГРАДЕНИ ДАННИ ---
         function loadGameData() {
-            const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/assets/";
+            const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main";
             allItems = [
                 { "id": "cat", "name": "Котка", "image": baseURL + "images/h/cat.jpg", "index": "h" },
                 { "id": "dog", "name": "Куче", "image": baseURL + "images/h/dog.jpg", "index": "h" },
@@ -515,8 +515,8 @@
             layoutsData = {
                 "d1": { 
                     "name": "Зелена долина", 
-                    "background_large": baseURL + "backgrounds/dolina-large.png",
-                    "background_small": baseURL + "backgrounds/dolina-small.png",
+                    "background_large": baseURL + "/assets/backgrounds/dolina-large.png",
+                    "background_small": baseURL + "/assets/backgrounds/dolina-small.png",
                     "slots": [ { "position": { "top": "25%", "left": "15%" }, "diameter": "10%", "index": ["s"] }, { "position": { "top": "23%", "left": "80%" }, "diameter": "10%", "index": ["s"] }, { "position": { "top": "70%", "left": "80%" }, "diameter": "10%", "index": ["p", "h"] }, { "position": { "top": "75%", "left": "40%" }, "diameter": "10%", "index": ["i"] }, { "position": { "top": "65%", "left": "65%" }, "diameter": "10%", "index": ["r"] }, { "position": { "top": "72%", "left": "92%" }, "diameter": "10%", "index": ["p"] } ], "distractors": 2 }
             };
         }
