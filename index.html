@@ -3,315 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Детски Игри</title>
+    <title>Къде да ме откриеш?</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <style>
         :root {
             --primary-color: #0d6efd;
             --success-color: #198754;
-            --slot-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            --error-color: #dc3545;
+            --slot-highlight: gold;
         }
+        * { box-sizing: border-box; }
         html, body {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden; font-family: 'Comic Sans MS', cursive, sans-serif;
-            background-color: #2c3e50; color: white;
+            background-color: #2c3e50; color: white; touch-action: manipulation;
         }
         .hidden { display: none !important; }
-        .title { font-size: 3rem; text-shadow: 2px 2px 4px #000; }
+        .visible { display: flex !important; }
         .screen {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
-            box-sizing: border-box; padding: 15px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; background-color: #1a2a3a;
+            justify-content: center; align-items: center; text-align: center;
         }
-        #startScreen { align-items: center; justify-content: center; }
-        #gameScreen { display: none; }
-        #gameScreen.visible { display: flex; }
-        #portalContainer { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 40px; margin-top: 30px; }
-        .portal { cursor: pointer; text-align: center; transition: transform 0.3s ease; }
+        .title {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 20px;
+        }
+        #portalContainer {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 20px; max-width: 1200px; margin-top: 20px;
+        }
+        .portal { cursor: pointer; transition: transform 0.3s ease; }
         .portal:hover { transform: scale(1.05); }
         .portal img {
-            width: 250px; height: 140px; object-fit: cover;
-            border-radius: 20px; border: 5px solid white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            width: clamp(150px, 20vw, 250px); height: clamp(100px, 15vw, 140px);
+            object-fit: cover; border-radius: 15px; border: 4px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
         }
-        .portal-name { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
-        .top-btn { position: absolute; top: 15px; left: 15px; z-index: 100; width: 45px; height: 45px; font-size: 1.5rem; border-radius: 50%; border: 2px solid white; color: white; background-color: rgba(0,0,0,0.4); cursor: pointer; }
-        .game-header { flex-shrink: 0; text-align: center; }
-        #gameTitle { font-size: 2.2rem; margin: 0; }
+        .portal-name {
+            font-size: clamp(1.2rem, 2vw, 1.8rem); font-weight: bold;
+            margin-top: 10px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+        #gameScreen {
+            padding: 0; background-color: transparent; justify-content: space-between;
+        }
+        #gameBoard {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center; z-index: 1;
+        }
+        .game-header {
+            width: 100%; position: relative; text-align: center; z-index: 10;
+            padding: 10px; background: rgba(0,0,0,0.3); height: 15%; flex-shrink: 0;
+        }
+        .top-btn {
+            position: absolute; top: 50%; left: 15px; transform: translateY(-50%);
+            z-index: 100; width: 45px; height: 45px; font-size: 1.5rem;
+            border-radius: 50%; border: 2px solid white; color: white;
+            background-color: rgba(0, 0, 0, 0.4); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #gameTitle {
+            font-size: clamp(1.5rem, 3vw, 2.5rem); margin: 0; color: white;
+            text-shadow: 2px 2px 4px black;
+        }
         #gameMessage {
-            font-size: 1.2rem; background-color: rgba(255, 255, 255, 0.9); padding: 8px 18px;
-            border-radius: 50px; box-shadow: var(--slot-shadow); color: #333;
-            display: inline-block; margin-top: 5px; min-height: 1.5em;
+            font-size: clamp(1rem, 2vw, 1.2rem); background-color: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px; border-radius: 50px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            color: #333; display: inline-block; margin-top: 8px;
+            font-weight: bold; white-space: nowrap;
         }
-        #dropZone { width: 100%; flex-grow: 1; min-height: 0; display: flex; justify-content: center; align-items: center; padding: 5px 0; }
-        #gameBoard { position: relative; width: 100%; height: 100%; max-width: 1200px; aspect-ratio: 16 / 9; background-size: cover; background-position: center; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        #slotHighlighter, .placed-image { position: absolute; object-fit: contain; transform: translate(-50%, -50%); aspect-ratio: 1 / 1; }
-        #slotHighlighter.active { display: block; border: 5px solid #FFD700; border-radius: 50%; box-shadow: 0 0 30px #FFD700; animation: highlight-pop 0.6s ease-out forwards; }
-        @keyframes highlight-pop { from { transform: translate(-50%,-50%) scale(0.8); } to { transform: translate(-50%,-50%) scale(1.0); } }
-        .placed-image { animation: place-in-slot 0.5s ease-out; }
-        @keyframes place-in-slot { from { opacity: 0; transform: translate(-50%,-50%) scale(0.5); } to { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
-        .game-footer { width: 100%; flex-shrink: 0; text-align: center; }
-        #startTurnContainer { min-height: 50px; }
-        .game-btn { padding: 10px 25px; font-size: 1.2rem; margin: 0; cursor: pointer; color: white; border: none; border-radius: 50px; background-image: linear-gradient(45deg, #FF512F 0%, #DD2476 51%, #FF512F 100%); background-size: 200% auto; transition: all 0.4s ease; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.4); }
-        #choiceZone { display: flex; align-items: center; gap: 10px; overflow-x: auto; justify-content: center; width: 100%; padding: 5px; box-sizing: border-box; }
-        #choiceZone img { height: 70px; width: 70px; object-fit: contain; background-color: white; border: 3px solid white; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1); flex-shrink: 0; }
-        #choiceZone img:hover { transform: scale(1.08); }
-        #choiceZone img.used { opacity: 0.4; cursor: not-allowed; }
-        #winScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.7); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
-        #winMessage { font-size: 5rem; color: white; text-shadow: 0 0 20px yellow; }
+        #feedbackMessage {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); font-size: clamp(4rem, 12vw, 8rem);
+            font-family: 'Comic Sans MS', cursive, sans-serif; font-weight: bold;
+            z-index: 2000; pointer-events: none; opacity: 0;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        #feedbackMessage.show { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        #feedbackMessage.correct { color: var(--success-color); text-shadow: 3px 3px 5px rgba(0,0,0,0.5); }
+        #feedbackMessage.wrong { color: var(--error-color); text-shadow: 3px 3px 5px rgba(0,0,0,0.5); }
+        #dropZone {
+            width: 100%; height: 100%; position: fixed;
+            top: 0; left: 0; z-index: 2; pointer-events: none;
+        }
+        #dropZone > * { pointer-events: auto; }
+        .slot {
+            position: absolute; border-radius: 50%; border: 3px dashed transparent;
+            background-color: transparent; transform: translate(-50%, -50%);
+            z-index: 2; transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .slot.active {
+            border: 4px solid var(--slot-highlight); background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px var(--slot-highlight); animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+        .placed-image-container {
+            position: absolute; transform: translate(-50%, -50%);
+            z-index: 3; animation: pop-in 0.4s ease-out;
+        }
+        .placed-image {
+            width: 100%; height: 100%; object-fit: contain;
+            aspect-ratio: 1/1; border-radius: 10%; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        .fun-fact-btn {
+            position: absolute; bottom: -10px; right: -10px; width: 40px; height: 40px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            border: 2px solid white; border-radius: 50%; color: white; font-size: 1.5rem;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4); animation: sparkle 1.5s infinite;
+        }
+        @keyframes sparkle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        @keyframes pop-in { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+        .game-footer {
+            width: 100%; z-index: 10; display: flex; flex-direction: column;
+            align-items: center; padding: 10px; background: rgba(0,0,0,0.3);
+            height: 25%; flex-shrink: 0;
+        }
+        #startTurnContainer { margin-bottom: 10px; }
+        .game-btn {
+            padding: 10px 30px; font-size: clamp(1rem, 2vw, 1.2rem); margin: 5px 0;
+            cursor: pointer; color: white; border: none; border-radius: 50px;
+            background: linear-gradient(45deg, #FF512F, #DD2476); background-size: 200% auto;
+            transition: all 0.4s ease; box-shadow: 0 5px 15px rgba(221, 36, 118, 0.4);
+            font-weight: bold; letter-spacing: 1px;
+        }
+        .game-btn:hover { background-position: right center; transform: scale(1.05); }
+        #choiceZoneContainer {
+            width: 100%; max-width: 1400px; overflow-x: auto;
+            padding: 5px; display: flex; align-items: center; flex-grow: 1;
+        }
+        #choiceZone {
+            display: flex; gap: 10px; justify-content: flex-start;
+            min-width: min-content; height: 100%;
+        }
+        .choice-item {
+            height: 100%; width: auto; aspect-ratio: 1/1; object-fit: contain;
+            background-color: white; border: 2px solid white; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+        .choice-item:hover { transform: scale(1.1); border-color: var(--slot-highlight); }
+        .choice-item.used { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        .win-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+        .win-message {
+            font-size: clamp(3rem, 10vw, 5rem); color: white;
+            text-shadow: 0 0 20px var(--slot-highlight); margin-bottom: 30px;
+            animation: win-pulse 2s infinite;
+        }
+        @keyframes win-pulse { 0%, 100% { transform: scale(1); text-shadow: 0 0 20px var(--slot-highlight); } 50% { transform: scale(1.1); text-shadow: 0 0 40px var(--slot-highlight); } }
     </style>
 </head>
 <body>
-    <div id="startScreen" class="screen">
+    <div id="welcomeScreen" class="screen visible">
+        <h1 class="title">Добре дошли в играта!</h1>
+        <button id="enterGameBtn" class="game-btn">ВХОД</button>
+    </div>
+    <div id="startScreen" class="screen hidden">
         <h1 class="title">Къде искаш да играеш?</h1>
         <div id="portalContainer"></div>
     </div>
     <div id="gameScreen" class="screen hidden">
+        <div id="gameBoard"></div>
         <div class="game-header">
-            <button id="backToMenuBtn" class="top-btn" title="Обратно към менюто">☰</button>
+            <button id="backToMenuBtn" class="top-btn">☰</button>
             <h1 id="gameTitle" class="title"></h1>
             <div id="gameMessage"></div>
         </div>
         <div id="dropZone">
-            <div id="gameBoard">
-                <div id="slotHighlighter" class="hidden"></div>
-            </div>
+            <div id="feedbackMessage"></div>
         </div>
         <div class="game-footer">
             <div id="startTurnContainer">
                 <button id="startTurnBtn" class="game-btn">СТАРТ</button>
             </div>
-            <div id="choiceZone"></div>
+            <div id="choiceZoneContainer">
+                <div id="choiceZone"></div>
+            </div>
         </div>
         <div id="winScreen" class="win-screen hidden">
+            <button id="winScreenMenuBtn" class="top-btn">☰</button>
             <div id="winMessage" class="win-message">БРАВО!</div>
             <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
-    <audio id="bravoAudio" src="audio/bravo_uily.wav"></audio>
-    <audio id="opitaiPakAudio" src="audio/opitaj_pak.wav"></audio>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- ДАННИ ---
-            const themesData = {
-              "allItems": [
-                { "id": "cat", "name": "Котка", "image": "images/h/cat.jpg", "sound": "", "index": "h" }, { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "sound": "audio/animals/dog.mp3", "index": "h" },
-                { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "sound": "audio/cars/train.mp3", "index": "i" }, { "id": "chicken", "name": "Кокошка", "image": "images/p/chicken.png", "sound": "audio/birds/chicken.mp3", "index": "p" },
-                { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "sound": "", "index": "p" }, { "id": "duck", "name": "Патица", "image": "images/p/duck.png", "sound": "audio/birds/duck.mp3", "index": "p" },
-                { "id": "rooster", "name": "Петел", "image": "images/p/rooster.png", "sound": "audio/birds/rooster.mp3", "index": "p" }, { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "sound": "audio/birds/turkey.mp3", "index": "p" },
-                { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "sound": "audio/cars/bus.mp3", "index": "r" }, { "id": "firetruck", "name": "Пожарна", "image": "images/r/firetruck.jpg", "sound": "audio/cars/firetruck.mp3", "index": "r" },
-                { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "sound": "audio/cars/truck-horn.mp3", "index": "r" }, { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "sound": "audio/cars/airplane.mp3", "index": "s" },
-                { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "sound": "audio/birds/crow.mp3", "index": "s" }, { "id": "dove", "name": "Гълъб", "image": "images/s/dove.png", "sound": "audio/birds/dove.mp3", "index": "s" },
-                { "id": "falcon", "name": "Сокол", "image": "images/s/falcon.png", "sound": "audio/birds/falcon.mp3", "index": "s" }, { "id": "robin", "name": "Червеношийка", "image": "images/s/robin.png", "sound": "audio/birds/robin.mp3", "index": "s" }
-              ]
-            };
-            const portalsData = {
-              "portals": [ { "id": "dolina", "name": "Зелена долина", "icon": "assets/icons/portal_dolina.png", "background": "assets/backgrounds/dolina.png", "layouts": ["d1"] } ]
-            };
-            const layoutsData = {
-                "d1": {
-                    "name": "Зелена долина",
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- ДЕФИНИРАНЕ НА ЕЛЕМЕНТИТЕ ---
+        const welcomeScreenEl = document.getElementById('welcomeScreen');
+        const enterGameBtn = document.getElementById('enterGameBtn');
+        const startScreenEl = document.getElementById('startScreen');
+        const portalContainerEl = document.getElementById('portalContainer');
+        const gameScreenEl = document.getElementById('gameScreen');
+        const gameBoardEl = document.getElementById('gameBoard');
+        const choiceZoneEl = document.getElementById('choiceZone');
+        const gameMessageEl = document.getElementById('gameMessage');
+        const gameTitleEl = document.getElementById('gameTitle');
+        const winScreenEl = document.getElementById('winScreen');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const startTurnBtn = document.getElementById('startTurnBtn');
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
+        const feedbackMessageEl = document.getElementById('feedbackMessage');
+        const winScreenMenuBtn = document.getElementById('winScreenMenuBtn');
+
+        // --- ПРОМЕНЛИВИ ЗА СЪСТОЯНИЕТО ---
+        let allItems = [], portalsData = [], layoutsData = {};
+        let currentPortalData = {}, currentLayoutId = null;
+        let isTurnActive = false, availableSlots = [], activeSlotData = null;
+
+        // --- ВГРАДЕНИ ДАННИ ---
+        function loadGameData() {
+            allItems = [
+                { "id": "cat", "name": "Котка", "image": "images/h/cat.jpg", "index": "h" },
+                { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "index": "h" },
+                { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "index": "i" },
+                { "id": "chicken", "name": "Кокошка", "image": "images/p/chicken.png", "index": "p" },
+                { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "index": "p" },
+                { "id": "duck", "name": "Патица", "image": "images/p/duck.png", "index": "p" },
+                { "id": "rooster", "name": "Петел", "image": "images/p/rooster.png", "index": "p" },
+                { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "index": "p" },
+                { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "index": "r" },
+                { "id": "firetruck", "name": "Пожарна", "image": "images/r/firetruck.jpg", "index": "r" },
+                { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "index": "r" },
+                { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "index": "s" },
+                { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "index": "s" },
+                { "id": "dove", "name": "Гълъб", "image": "images/s/dove.png", "index": "s" },
+                { "id": "falcon", "name": "Сокол", "image": "images/s/falcon.png", "index": "s" }
+            ];
+            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": "assets/icons/portal_dolina.png", "layouts": ["d1"]}];
+            layoutsData = {
+                "d1": { 
+                    "name": "Зелена долина", 
+                    "background": "assets/backgrounds/dolina.png",
                     "slots": [
-                        { "position": { "top": "35%", "left": "15%" }, "diameter": "18%", "index": ["s"] }, { "position": { "top": "40%", "left": "80%" }, "diameter": "18%", "index": ["s"] },
-                        { "position": { "top": "68%", "left": "88%" }, "diameter": "18%", "index": ["p", "h"] }, { "position": { "top": "80%", "left": "30%" }, "diameter": "18%", "index": ["i"] },
-                        { "position": { "top": "80%", "left": "65%" }, "diameter": "18%", "index": ["r"] }, { "position": { "top": "85%", "left": "10%" }, "diameter": "18%", "index": ["p"] }
+                        { "position": { "top": "25%", "left": "15%" }, "diameter": "10%", "index": ["s"] },
+                        { "position": { "top": "23%", "left": "80%" }, "diameter": "10%", "index": ["s"] },
+                        { "position": { "top": "70%", "left": "80%" }, "diameter": "10%", "index": ["p", "h"] },
+                        { "position": { "top": "75%", "left": "40%" }, "diameter": "10%", "index": ["i"] },
+                        { "position": { "top": "65%", "left": "65%" }, "diameter": "10%", "index": ["r"] },
+                        { "position": { "top": "72%", "left": "92%" }, "diameter": "10%", "index": ["p"] }
                     ], "distractors": 2
                 }
             };
+        }
 
-            // --- ЕЛЕМЕНТИ ---
-            const startScreenEl = document.getElementById('startScreen');
-            const portalContainerEl = document.getElementById('portalContainer');
-            const gameScreenEl = document.getElementById('gameScreen');
-            const gameBoardEl = document.getElementById('gameBoard');
-            const choiceZoneEl = document.getElementById('choiceZone');
-            const gameMessageEl = document.getElementById('gameMessage');
-            const gameTitleEl = document.getElementById('gameTitle');
-            const winScreenEl = document.getElementById('winScreen');
-            const playAgainBtn = document.getElementById('playAgainBtn');
-            const startTurnBtn = document.getElementById('startTurnBtn');
-            const backToMenuBtn = document.getElementById('backToMenuBtn');
-            const bravoAudio = document.getElementById('bravoAudio');
-            const opitaiPakAudio = document.getElementById('opitaiPakAudio');
-            
-            // --- СЪСТОЯНИЕ ---
-            let allItems = [];
-            let currentPortalData = {};
-            let currentLayoutId = null;
-            let isTurnActive = false;
-            let availableSlots = [];
-            let activeSlotData = null;
+        function initializeApp() {
+            loadGameData();
+            renderPortals(portalsData);
+            setupEventListeners();
+        }
 
-            function initializeApp() {
-                allItems = themesData.allItems;
-                renderPortals(portalsData.portals);
-                setupEventListeners();
-                showStartScreen();
-            }
+        function renderPortals(portals) {
+            portalContainerEl.innerHTML = '';
+            portals.forEach(portal => {
+                const portalEl = document.createElement('div');
+                portalEl.className = 'portal';
+                portalEl.innerHTML = `<img src="${portal.icon}" alt="${portal.name}"><div class="portal-name">${portal.name}</div>`;
+                portalEl.addEventListener('click', () => startGame(portal));
+                portalContainerEl.appendChild(portalEl);
+            });
+        }
 
-            function renderPortals(portals) {
-                portalContainerEl.innerHTML = '';
-                portals.forEach(portal => {
-                    const portalEl = document.createElement('div');
-                    portalEl.className = 'portal';
-                    const imgEl = document.createElement('img');
-                    imgEl.src = portal.icon;
-                    imgEl.alt = portal.name;
-                    const nameEl = document.createElement('div');
-                    nameEl.className = 'portal-name';
-                    nameEl.textContent = portal.name;
-                    portalEl.appendChild(imgEl);
-                    portalEl.appendChild(nameEl);
-                    portalEl.addEventListener('click', () => startGame(portal));
-                    portalContainerEl.appendChild(portalEl);
-                });
-            }
+        function startGame(portal) {
+            currentPortalData = portal;
+            startScreenEl.classList.add('hidden');
+            gameScreenEl.classList.remove('hidden');
+            gameScreenEl.classList.add('visible');
+            gameTitleEl.textContent = portal.name;
+            currentLayoutId = portal.layouts[0];
+            loadLayout(currentLayoutId);
+        }
+        
+        function loadLayout(layoutId) {
+            winScreenEl.classList.add('hidden');
+            const levelData = layoutsData[layoutId];
+            if (!levelData) { console.error(`Нивото ${layoutId} не бе намерено`); return; }
+            resetGameState();
+            gameBoardEl.style.backgroundImage = `url('${levelData.background}')`;
+            availableSlots = JSON.parse(JSON.stringify(levelData.slots));
+            createSlots(availableSlots);
+            const choicePool = generateChoicePool(levelData);
+            renderChoiceZone(choicePool);
+            gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
+            startTurnBtn.classList.remove('hidden');
+        }
 
-            function startGame(portal) {
-                currentPortalData = portal;
-                showGameScreen();
-                loadNextLayout();
-            }
+        function generateChoicePool(levelData) {
+            const correctItems = new Map();
+            levelData.slots.forEach(slot => {
+                const possibleItems = allItems.filter(item => slot.index.includes(item.index));
+                if (possibleItems.length > 0) {
+                    const randomItem = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+                    if (!correctItems.has(randomItem.id)) correctItems.set(randomItem.id, randomItem);
+                }
+            });
+            const correctItemsArray = Array.from(correctItems.values());
+            const distractorCount = 8 - correctItemsArray.length;
+            const possibleDistractors = allItems.filter(item => !correctItems.has(item.id));
+            const shuffledDistractors = shuffleArray(possibleDistractors).slice(0, Math.max(0, distractorCount));
+            return shuffleArray([...correctItemsArray, ...shuffledDistractors]);
+        }
 
-            function loadLayout(layoutId) {
-                const levelData = layoutsData[layoutId];
-                if (!levelData) return;
-                currentLayoutId = layoutId;
-                isTurnActive = false;
-                winScreenEl.classList.add('hidden');
-                startTurnBtn.classList.remove('hidden');
-                gameMessageEl.textContent = 'Натисни "СТАРТ", за да започнеш!';
-                gameBoardEl.style.backgroundImage = `url('${currentPortalData.background}')`;
-                gameTitleEl.textContent = currentPortalData.name;
-                gameBoardEl.innerHTML = '<div id="slotHighlighter" class="hidden"></div>';
-                availableSlots = [...levelData.slots];
-                const choicePool = generateChoicePool(levelData);
-                renderChoiceZone(choicePool);
-            }
+        function renderChoiceZone(choicePool) {
+            choiceZoneEl.innerHTML = '';
+            choicePool.forEach(item => {
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.name;
+                img.classList.add('choice-item');
+                img.addEventListener('click', () => handleChoiceClick(item, img));
+                choiceZoneEl.appendChild(img);
+            });
+        }
 
-            function generateChoicePool(levelData) {
-                const correctItemsArray = [];
-                const usedItems = new Set();
-                levelData.slots.forEach(slot => {
-                    const itemsForSlot = allItems.filter(item => slot.index.includes(item.index) && !usedItems.has(item.id));
-                    if (itemsForSlot.length > 0) {
-                        const randomItem = itemsForSlot[Math.floor(Math.random() * itemsForSlot.length)];
-                        correctItemsArray.push(randomItem);
-                        usedItems.add(randomItem.id);
-                    }
-                });
-                const distractorItems = allItems.filter(item => !usedItems.has(item.id));
-                const finalDistractors = shuffleArray(distractorItems).slice(0, levelData.distractors);
-                return shuffleArray([...correctItemsArray, ...finalDistractors]);
-            }
-            
-            function renderChoiceZone(choicePool) {
-                choiceZoneEl.innerHTML = '';
-                choicePool.forEach(item => {
-                    const img = document.createElement('img');
-                    img.src = item.image;
-                    img.alt = item.name;
-                    img.dataset.index = item.index;
-                    img.addEventListener('click', () => handleChoiceClick(item, img));
-                    choiceZoneEl.appendChild(img);
-                });
-            }
-            
-            function startNewTurn() {
-                if (isTurnActive || availableSlots.length === 0) return;
-                isTurnActive = true;
-                startTurnBtn.classList.add('hidden');
-                activateNextSlot();
-            }
+        function createSlots(slots) {
+            const dropZone = document.getElementById('dropZone');
+            dropZone.innerHTML = '<div id="feedbackMessage"></div>';
+            slots.forEach((slot, index) => {
+                const slotEl = document.createElement('div');
+                slotEl.className = 'slot';
+                slotEl.style.width = slot.diameter;
+                slotEl.style.height = slot.diameter;
+                slotEl.style.top = slot.position.top;
+                slotEl.style.left = slot.position.left;
+                slotEl.dataset.slotIndex = index;
+                dropZone.appendChild(slotEl);
+            });
+        }
 
-            // --- ТУК Е КОРЕКЦИЯТА ЗА ПРОИЗВОЛЕН РЕД ---
-            function activateNextSlot() {
+        function startNewTurn() {
+            isTurnActive = true;
+            startTurnBtn.classList.add('hidden');
+            activateNextSlot();
+        }
+
+        // --- ТУК Е КОРЕКЦИЯТА ЗА ПРОИЗВОЛЕН РЕД ---
+        function activateNextSlot() {
+            if (availableSlots.length > 0) {
                 // Избираме случаен слот от оставащите
                 const randomIndex = Math.floor(Math.random() * availableSlots.length);
-                activeSlotData = availableSlots[randomIndex];
-                
-                const highlighter = document.getElementById('slotHighlighter');
-                highlighter.style.top = activeSlotData.position.top;
-                highlighter.style.left = activeSlotData.position.left;
-                highlighter.style.width = activeSlotData.diameter;
-                
-                highlighter.classList.remove('hidden', 'active');
-                void highlighter.offsetWidth;
-                highlighter.classList.add('active');
-                gameMessageEl.textContent = 'Коя картинка е за тук?';
-            }
+                activeSlotData = { ...availableSlots[randomIndex], originalIndex: layoutsData[currentLayoutId].slots.findIndex(s => s === availableSlots[randomIndex]) };
 
-            function handleChoiceClick(chosenItem, chosenImgElement) {
-                if (!isTurnActive || chosenImgElement.classList.contains('used')) return;
-                if (activeSlotData && activeSlotData.index.includes(chosenItem.index)) {
-                    bravoAudio.play();
+                const activeSlotEl = document.querySelector(`.slot[data-slot-index="${activeSlotData.originalIndex}"]`);
+                if (activeSlotEl) {
+                    // Премахваме 'active' от предишния, ако има такъв
+                    const prevActive = document.querySelector('.slot.active');
+                    if(prevActive) prevActive.classList.remove('active');
                     
-                    const placedImg = document.createElement('img');
-                    placedImg.src = chosenItem.image;
-                    placedImg.className = 'placed-image';
-                    placedImg.style.top = activeSlotData.position.top;
-                    placedImg.style.left = activeSlotData.position.left;
-                    placedImg.style.width = activeSlotData.diameter;
-                    gameBoardEl.appendChild(placedImg);
-
-                    document.getElementById('slotHighlighter').classList.add('hidden');
-                    chosenImgElement.classList.add('used');
-                    
-                    // Премахваме използвания слот от списъка с достъпни
-                    availableSlots = availableSlots.filter(slot => slot !== activeSlotData);
-                    
-                    if (availableSlots.length === 0) {
-                        isTurnActive = false;
-                        setTimeout(() => winScreenEl.classList.remove('hidden'), 1000);
-                    } else {
-                        // ПРОМЯНА: Директно активираме следващия слот
-                        activateNextSlot();
-                    }
-                } else {
-                    opitaiPakAudio.play();
-                    gameMessageEl.textContent = 'Опитай пак!';
+                    activeSlotEl.classList.add('active');
+                    gameMessageEl.textContent = `Какво ще има тук?`;
                 }
+            } else {
+                showFeedback(true, "БРАВО!");
+                setTimeout(() => {
+                    winScreenEl.classList.remove('hidden');
+                }, 1500);
+                activeSlotData = null;
             }
+        }
 
-            function loadNextLayout() {
-                const layouts = currentPortalData.layouts;
-                if (!layouts || layouts.length <= 1) {
-                    loadLayout(layouts ? layouts[0] : currentLayoutId); return;
-                }
-                let nextLayoutId;
-                do {
-                    nextLayoutId = layouts[Math.floor(Math.random() * layouts.length)];
-                } while (nextLayoutId === currentLayoutId);
-                loadLayout(nextLayoutId);
+        function handleChoiceClick(chosenItem, chosenImgElement) {
+            if (!isTurnActive || !activeSlotData || chosenImgElement.classList.contains('used')) return;
+            const isValid = activeSlotData.index.includes(chosenItem.index);
+            if (isValid) {
+                showFeedback(true, "Браво!");
+                placeImageInSlot(chosenItem, activeSlotData);
+                chosenImgElement.classList.add('used');
+                availableSlots = availableSlots.filter(s => s !== availableSlots.find(slot => slot.position.top === activeSlotData.position.top && slot.position.left === activeSlotData.position.left));
+                setTimeout(activateNextSlot, 1500);
+            } else {
+                showFeedback(false, "Опитай пак!");
             }
-            
-            function showStartScreen() {
-                document.body.style.backgroundImage = 'none';
-                gameScreenEl.classList.add('hidden');
+        }
+        
+        function showFeedback(isCorrect, message) {
+            feedbackMessageEl.textContent = message;
+            feedbackMessageEl.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+            feedbackMessageEl.classList.add('show');
+            setTimeout(() => { feedbackMessageEl.classList.remove('show'); }, 1500);
+        }
+
+        function placeImageInSlot(item, slotData) {
+            const container = document.createElement('div');
+            container.className = 'placed-image-container';
+            container.style.width = slotData.diameter;
+            container.style.height = slotData.diameter;
+            container.style.top = slotData.position.top;
+            container.style.left = slotData.position.left;
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = item.name;
+            img.classList.add('placed-image');
+            container.appendChild(img);
+            document.getElementById('dropZone').appendChild(container);
+        }
+
+        function resetGameState() {
+            isTurnActive = false;
+            availableSlots = [];
+            activeSlotData = null;
+            winScreenEl.classList.add('hidden');
+            startTurnBtn.classList.remove('hidden');
+        }
+
+        function showMenu() {
+            gameScreenEl.classList.remove('visible');
+            gameScreenEl.classList.add('hidden');
+            winScreenEl.classList.add('hidden');
+            startScreenEl.classList.remove('hidden');
+            startScreenEl.classList.add('visible');
+        }
+        
+        function setupEventListeners() {
+            enterGameBtn.addEventListener('click', () => {
+                welcomeScreenEl.classList.add('hidden');
                 startScreenEl.classList.remove('hidden');
-            }
+                startScreenEl.classList.add('visible');
+            });
+            startTurnBtn.addEventListener('click', startNewTurn);
+            playAgainBtn.addEventListener('click', () => loadLayout(currentLayoutId));
+            backToMenuBtn.addEventListener('click', showMenu);
+            winScreenMenuBtn.addEventListener('click', showMenu);
+        }
 
-            function showGameScreen() {
-                startScreenEl.classList.add('hidden');
-                gameScreenEl.classList.remove('hidden');
+        function shuffleArray(array) {
+            const result = [...array];
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
             }
+            return result;
+        }
 
-            function setupEventListeners() {
-                playAgainBtn.addEventListener('click', loadNextLayout);
-                backToMenuBtn.addEventListener('click', showStartScreen);
-                startTurnBtn.addEventListener('click', startNewTurn);
-            }
-
-            function shuffleArray(array) {
-                let currentIndex = array.length, randomIndex;
-                while (currentIndex !== 0) {
-                    randomIndex = Math.floor(Math.random() * currentIndex);
-                    currentIndex--;
-                    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-                }
-                return array;
-            }
-
-            initializeApp();
-        });
+        initializeApp();
+    });
     </script>
 </body>
 </html>
