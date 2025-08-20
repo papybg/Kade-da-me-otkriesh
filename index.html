@@ -493,30 +493,29 @@
 
         // --- ВГРАДЕНИ ДАННИ ---
         function loadGameData() {
-            const baseURL = "https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main";
-            allItems = [
-                { "id": "cat", "name": "Котка", "image": baseURL + "images/h/cat.jpg", "index": "h" },
-                { "id": "dog", "name": "Куче", "image": baseURL + "images/h/dog.jpg", "index": "h" },
-                { "id": "train", "name": "Влак", "image": baseURL + "images/i/train.jpg", "index": "i" },
-                { "id": "chicken", "name": "Кокошка", "image": baseURL + "images/p/chicken.png", "index": "p" },
-                { "id": "cow", "name": "Крава", "image": baseURL + "images/p/cow.png", "index": "p" },
-                { "id": "duck", "name": "Патица", "image": baseURL + "images/p/duck.png", "index": "p" },
-                { "id": "rooster", "name": "Петел", "image": baseURL + "images/p/rooster.png", "index": "p" },
-                { "id": "turkey", "name": "Пуйка", "image": baseURL + "images/p/turkey.png", "index": "p" },
-                { "id": "bus", "name": "Автобус", "image": baseURL + "images/r/bus.jpg", "index": "r" },
-                { "id": "firetruck", "name": "Пожарна", "image": baseURL + "images/r/firetruck.jpg", "index": "r" },
-                { "id": "truck", "name": "Камион", "image": baseURL + "images/r/truck.jpg", "index": "r" },
-                { "id": "airplane", "name": "Самолет", "image": baseURL + "images/s/airplane.jpg", "index": "s" },
-                { "id": "crow", "name": "Врана", "image": baseURL + "images/s/crow.png", "index": "s" },
-                { "id": "dove", "name": "Гълъб", "image": baseURL + "images/s/dove.png", "index": "s" },
-                { "id": "falcon", "name": "Сокол", "image": baseURL + "images/s/falcon.png", "index": "s" }
+                    allItems = [
+                { "id": "cat", "name": "Котка", "image": "images/h/cat.jpg", "index": "h" },
+                { "id": "dog", "name": "Куче", "image": "images/h/dog.jpg", "index": "h" },
+                { "id": "train", "name": "Влак", "image": "images/i/train.jpg", "index": "i" },
+                { "id": "chicken", "name": "Кокошка", "image": "images/p/chicken.png", "index": "p" },
+                { "id": "cow", "name": "Крава", "image": "images/p/cow.png", "index": "p" },
+                { "id": "duck", "name": "Патица", "image": "images/p/duck.png", "index": "p" },
+                { "id": "rooster", "name": "Петел", "image": "images/p/rooster.png", "index": "p" },
+                { "id": "turkey", "name": "Пуйка", "image": "images/p/turkey.png", "index": "p" },
+                { "id": "bus", "name": "Автобус", "image": "images/r/bus.jpg", "index": "r" },
+                { "id": "firetruck", "name": "Пожарна", "image": "images/r/firetruck.jpg", "index": "r" },
+                { "id": "truck", "name": "Камион", "image": "images/r/truck.jpg", "index": "r" },
+                { "id": "airplane", "name": "Самолет", "image": "images/s/airplane.jpg", "index": "s" },
+                { "id": "crow", "name": "Врана", "image": "images/s/crow.png", "index": "s" },
+                { "id": "dove", "name": "Гълъб", "image": "images/s/dove.png", "index": "s" },
+                { "id": "falcon", "name": "Сокол", "image": "images/s/falcon.png", "index": "s" }
             ];
-            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": baseURL + "icons/portal_dolina.png", "layouts": ["d1"]}];
+            portalsData = [{"id": "dolina", "name": "зелена долина", "icon": "icons/portal_dolina.png", "layouts": ["d1"]}];
             layoutsData = {
                 "d1": { 
                     "name": "Зелена долина", 
-                    "background_large": baseURL + "/assets/backgrounds/dolina-large.png",
-                    "background_small": baseURL + "/assets/backgrounds/dolina-small.png",
+                    "background_large": "/assets/backgrounds/dolina-large.png",
+                    "background_small": "/assets/backgrounds/dolina-small.png",
                     "slots": [ { "position": { "top": "25%", "left": "15%" }, "diameter": "10%", "index": ["s"] }, { "position": { "top": "23%", "left": "80%" }, "diameter": "10%", "index": ["s"] }, { "position": { "top": "70%", "left": "80%" }, "diameter": "10%", "index": ["p", "h"] }, { "position": { "top": "75%", "left": "40%" }, "diameter": "10%", "index": ["i"] }, { "position": { "top": "65%", "left": "65%" }, "diameter": "10%", "index": ["r"] }, { "position": { "top": "72%", "left": "92%" }, "diameter": "10%", "index": ["p"] } ], "distractors": 2 }
             };
         }
