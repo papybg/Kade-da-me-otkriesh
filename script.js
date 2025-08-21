@@ -48,9 +48,9 @@ let isTurnActive = false, availableSlots = [], activeSlotData = null, totalSlots
 async function loadAllData() {
     try {
         const [portalsRes, itemsRes, layoutD1Res] = await Promise.all([
-            fetch('https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/portals.json'),
-            fetch('https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/themes.json'),
-            fetch('https://raw.githubusercontent.com/papybg/Kade-da-me-otkriesh/main/assets/layouts/d1.json') 
+            fetch('main/portals.json'),
+            fetch('main/themes.json'),
+            fetch('main/assets/layouts/d1.json') 
         ]);
 
         const portalsJson = await portalsRes.json();
