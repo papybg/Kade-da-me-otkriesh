@@ -231,10 +231,29 @@ document.addEventListener('DOMContentLoaded', () => {
         // ... (Тази функция остава същата)
     }
 
-    // --- НАСТРОЙКА НА СЛУШАТЕЛИТЕ ---
-    function setupEventListeners() {
-        // ... (Тази функция остава същата)
+   // --- НАСТРОЙКА НА СЛУШАТЕЛИТЕ ---
+function setupEventListeners() {
+    console.log("Проверка 1: Функцията setupEventListeners се изпълни.");
+
+    if (!enterGameBtn) {
+        console.error("КРИТИЧНА ГРЕШКА: Бутонът 'ВХОД' не е намерен!");
+        return;
     }
+    
+    console.log("Проверка 2: Бутонът 'ВХОД' е намерен успешно.");
+
+    enterGameBtn.addEventListener('click', () => {
+        console.log("Проверка 3: Бутонът 'ВХОД' беше натиснат!");
+
+        // initializeAudio();
+        // enterFullscreen();
+        welcomeScreenEl.classList.add('hidden');
+        startScreenEl.classList.remove('hidden');
+        startScreenEl.classList.add('visible');
+        
+        console.log("Проверка 4: Екраните бяха сменени.");
+    });
+}
 
     // --- ПОМОЩНИ ФУНКЦИИ ---
     function shuffleArray(array) {
