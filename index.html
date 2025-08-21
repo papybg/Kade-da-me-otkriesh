@@ -1,49 +1,51 @@
-<div id="welcomeScreen" class="screen visible">
-    <h1 class="title">Добре дошли в играта!</h1>
-    <button id="enterGameBtn" class="game-btn">ВХОД</button>
-</div>
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Къде да ме откриеш?</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="welcomeScreen" class="screen visible">
+        <h1 class="title">Добре дошли в играта!</h1>
+        <button id="enterGameBtn" class="game-btn">ВХОД</button>
+    </div>
 
-<div id="startScreen" class="screen hidden">
-    <h1 class="title">Къде искаш да играеш?</h1>
-    <div id="portalContainer"></div>
-</div>
-  
-<div id="gameScreen" class="screen hidden">
-    <div id="gameBoard"></div>
-    <div class="game-header">
-        <button id="backToMenuBtn" class="top-btn">☰</button>
-        <h1 id="gameTitle" class="title"></h1>
-        <div id="gameMessage"></div>
+    <div id="startScreen" class="screen hidden">
+        <h1 class="title">Къде искаш да играеш?</h1>
+        <div id="portalContainer"></div>
     </div>
-      
-    <div id="dropZone">
-        <div id="feedbackMessage"></div>
-    </div>
-      
-    <div class="game-footer">
-        <div id="startTurnContainer">
-            <button id="startTurnBtn" class="game-btn">СТАРТ</button>
+    
+    <div id="gameScreen" class="screen hidden">
+        <div id="gameBoard"></div>
+        <div class="game-header">
+            <button id="backToMenuBtn" class="top-btn">☰</button>
+            <h1 id="gameTitle" class="title"></h1>
+            <div id="gameMessage"></div>
         </div>
-        <div id="choiceZoneContainer">
-            <div id="choiceZone"></div>
+        
+        <div id="dropZone">
+            <div id="feedbackMessage"></div>
+        </div>
+        
+        <div class="game-footer">
+            <div id="startTurnContainer">
+                <button id="startTurnBtn" class="game-btn">СТАРТ</button>
+            </div>
+            <div id="choiceZoneContainer">
+                <div id="choiceZone"></div>
+            </div>
+        </div>
+        
+        <div id="winScreen" class="win-screen hidden">
+            <button id="winScreenMenuBtn" class="top-btn">☰</button>
+            <div id="winMessage" class="win-message">БРАВО!</div>
+            <button id="playAgainBtn" class="game-btn">Нова игра</button>
         </div>
     </div>
-      
-    <div id="winScreen" class="win-screen hidden">
-        <button id="winScreenMenuBtn" class="top-btn">☰</button>
-        <div id="winMessage" class="win-message">БРАВО!</div>
-        <button id="playAgainBtn" class="game-btn">Нова игра</button>
-    </div>
-</div>
-  
-<div id="gemini-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-        <button id="modal-close-btn" class="modal-close-btn">&times;</button>
-        <h2 id="modal-title">✨ Ето нещо интересно! ✨</h2>
-        <div id="modal-body">
-            <div id="modal-loader" class="loader hidden"></div>
-            <p id="modal-text"></p>
-        </div>
-        <button id="modal-continue-btn" class="game-btn">Продължи</button>
-    </div>
-</div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
