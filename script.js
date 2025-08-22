@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        versionDisplay.textContent = `Версия: ${hours}:${minutes}:${seconds}`;
+        versionDisplay.textContent = `V: ${hours}:${minutes}:${seconds}`;
     }
 
     // --- ДЕФИНИРАНЕ НА ЕЛЕМЕНТИТЕ ---
@@ -32,40 +32,48 @@ document.addEventListener('DOMContentLoaded', () => {
     let portalsData = [];
     let layoutsData = {};
     let currentPortalData = {}, currentLayoutId = null;
-    let isTurnActive = false, availableSlots = [], activeSlotData = null, totalSlots = 0;
-    
-    // --- АУДИО СИСТЕМА ---
-    let audioInitialized = false;
-    function initializeAudio() {
-        if (audioInitialized || typeof Tone === 'undefined') return;
-        try {
-            Tone.start();
-            audioInitialized = true;
-        } catch (e) {
-            console.error("Грешка при инициализиране на аудиото:", e);
-        }
-    }
+    let isTurnActive = false, availableSlots = [], activeSlotData = null;
 
-    // --- Функция за зареждане на всички данни от файлове ---
+    // --- Функция за зареждане на данни ---
     async function loadAllData() {
         try {
-            const [portalsRes, itemsRes, layoutD1Res] = await Promise.all([
+            const [portalsRes, itemsRes] = await Promise.all([
                 fetch('portals.json'),
-                fetch('themes.json'),
-                fetch('assets/layouts/d1.json') 
+                fetch('themes.json')
             ]);
+
+            if (!portalsRes.ok) throw new Error(`portals.json: ${portalsRes.statusText}`);
+            if (!itemsRes.ok) throw new Error(`themes.json: ${itemsRes.statusText}`);
 
             const portalsJson = await portalsRes.json();
             const itemsJson = await itemsRes.json();
-            const layoutD1Json = await layoutD1Res.json();
 
             portalsData = portalsJson.portals;
             allItems = itemsJson.allItems;
-            layoutsData['d1'] = layoutD1Json;
+
+            const layoutIds = new Set();
+            portalsData.forEach(portal => {
+                portal.layouts.forEach(layoutId => layoutIds.add(layoutId));
+            });
+
+            const layoutFetchPromises = Array.from(layoutIds).map(id => {
+                return fetch(`assets/layouts/${id}.json`)
+                    .then(res => {
+                        if (!res.ok) throw new Error(`File not found: assets/layouts/${id}.json`);
+                        return res.json();
+                    });
+            });
+
+            const loadedLayouts = await Promise.all(layoutFetchPromises);
+
+            loadedLayouts.forEach((layoutContent, index) => {
+                const layoutId = Array.from(layoutIds)[index];
+                layoutsData[layoutId] = layoutContent;
+            });
 
         } catch (error) {
-            console.error("Критична грешка при зареждане на данните за играта:", error);
-            document.body.innerHTML = '<h1>Грешка при зареждане на играта. Моля, опитайте по-късно.</h1>';
+            console.error("Критична грешка при зареждане:", error);
+            document.body.innerHTML = `<h1>Грешка при зареждане на играта.</h1><p>${error.message}</p><p>Проверете имената на файловете в GitHub и конзолата (F12).</p>`;
         }
     }
 
@@ -78,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- РЕНДИРАНЕ НА ПОРТАЛИТЕ ---
     function renderPortals(portals) {
+        if (!portalContainerEl) return;
         portalContainerEl.innerHTML = '';
         portals.forEach(portal => {
             const portalEl = document.createElement('div');
@@ -88,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- СТАРТИРАНЕ НА ИГРАТА ---
     function startGame(portal) {
         currentPortalData = portal;
         startScreenEl.classList.add('hidden');
@@ -99,32 +107,26 @@ document.addEventListener('DOMContentLoaded', () => {
         loadLayout(currentLayoutId);
     }
     
-    // --- ЗАРЕЖДАНЕ НА КОНКРЕТНО НИВО ---
     function loadLayout(layoutId) {
-    winScreenEl.classList.add('hidden');
-    const levelData = layoutsData[layoutId];
-    if (!levelData) {
-        console.error(`Нивото ${layoutId} не бе намерено`);
-        return;
+        winScreenEl.classList.add('hidden');
+        const levelData = layoutsData[layoutId];
+        if (!levelData) { console.error(`Нивото ${layoutId} не бе намерено`); return; }
+        
+        resetGameState();
+        
+        const isMobile = window.innerWidth < 768;
+        const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
+        gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
+
+        availableSlots = JSON.parse(JSON.stringify(levelData.slots));
+        createSlots(availableSlots);
+        const choicePool = generateChoicePool(levelData);
+        renderChoiceZone(choicePool);
+        
+        gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
+        startTurnBtn.classList.remove('hidden');
     }
-    
-    resetGameState();
-    
-    // Връщаме логиката да взима фона от данните за НИВОТО (layout).
-    const isMobile = window.innerWidth < 768;
-    const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
-    gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
 
-    availableSlots = JSON.parse(JSON.stringify(levelData.slots));
-    createSlots(availableSlots);
-    const choicePool = generateChoicePool(levelData);
-    renderChoiceZone(choicePool);
-    
-    gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
-    startTurnBtn.classList.remove('hidden');
-}
-
-    // --- ГЕНЕРИРАНЕ НА ИЗБОРИТЕ ---
     function generateChoicePool(levelData) {
         const correctItems = new Map();
         levelData.slots.forEach(slot => {
@@ -141,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return shuffleArray([...correctItemsArray, ...shuffledDistractors]);
     }
 
-    // --- РЕНДИРАНЕ НА ЗОНА ЗА ИЗБОР ---
     function renderChoiceZone(choicePool) {
         choiceZoneEl.innerHTML = '';
         choicePool.forEach(item => {
@@ -154,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- СЪЗДАВАНЕ НА СЛОТОВЕТЕ ---
     function createSlots(slots) {
         const dropZone = document.getElementById('dropZone');
         dropZone.innerHTML = '<div id="feedbackMessage"></div>';
@@ -170,14 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- СТАРТИРАНЕ НА ХОД ---
     function startNewTurn() {
         isTurnActive = true;
         startTurnBtn.classList.add('hidden');
         activateNextSlot();
     }
 
-    // --- АКТИВИРАНЕ НА СЛЕДВАЩ ПРОИЗВОЛЕН СЛОТ ---
     function activateNextSlot() {
         if (activeSlotData && activeSlotData.originalIndex !== undefined) {
             const prevSlotEl = document.querySelector(`.slot[data-original-index="${activeSlotData.originalIndex}"]`);
@@ -188,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const randomIndex = Math.floor(Math.random() * availableSlots.length);
             const randomSlotData = availableSlots[randomIndex];
             
-            const originalSlotIndex = layoutsData[currentLayoutId].slots.findIndex(s => 
+            const originalSlotIndex = Object.values(layoutsData).flatMap(l => l.slots).findIndex(s => 
                 s.position.top === randomSlotData.position.top && s.position.left === randomSlotData.position.left
             );
             
@@ -209,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- ОБРАБОТКА НА ИЗБОРА ---
     function handleChoiceClick(chosenItem, chosenImgElement) {
         if (!isTurnActive || !activeSlotData || chosenImgElement.classList.contains('used')) return;
 
@@ -224,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 slot.position.top !== activeSlotData.position.top || slot.position.left !== activeSlotData.position.left
             );
 
-            setTimeout(activateNextSlot, 3000);
+            setTimeout(activateNextSlot, 1500);
         } else {
             showFeedback(false, "Опитай пак!");
             chosenImgElement.style.borderColor = 'red';
@@ -232,15 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- ПОКАЗВАНЕ НА ОБРАТНА ВРЪЗКА ---
     function showFeedback(isCorrect, message) {
         feedbackMessageEl.textContent = message;
         feedbackMessageEl.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
         feedbackMessageEl.classList.add('show');
-        setTimeout(() => { feedbackMessageEl.classList.remove('show'); }, 1500);
+        setTimeout(() => { feedbackMessageEl.classList.remove('show'); }, 1200);
     }
 
-    // --- ПОСТАВЯНЕ НА КАРТИНКА В СЛОТ ---
     function placeImageInSlot(item, slotData) {
         const container = document.createElement('div');
         container.className = 'placed-image-container';
@@ -254,47 +249,34 @@ document.addEventListener('DOMContentLoaded', () => {
         img.alt = item.name;
         img.classList.add('placed-image');
         
-        const btn = document.createElement('button');
-        btn.className = 'fun-fact-btn';
-        btn.innerHTML = '✨';
-        
         container.appendChild(img);
-        container.appendChild(btn);
         document.getElementById('dropZone').appendChild(container);
     }
 
-    // --- НУЛИРАНЕ НА СЪСТОЯНИЕТО НА ИГРАТА ---
     function resetGameState() {
         isTurnActive = false;
         availableSlots = [];
         activeSlotData = null;
-        totalSlots = 0;
+        const dropZone = document.getElementById('dropZone');
+        if(dropZone) dropZone.innerHTML = '<div id="feedbackMessage"></div>';
         winScreenEl.classList.add('hidden');
         startTurnBtn.classList.remove('hidden');
     }
 
-    // --- ВРЪЩАНЕ В ГЛАВНОТО МЕНЮ ---
     function showMenu() {
-        gameScreenEl.classList.remove('visible');
         gameScreenEl.classList.add('hidden');
-        winScreenEl.classList.add('hidden');
         startScreenEl.classList.remove('hidden');
         startScreenEl.classList.add('visible');
     }
 
-    // --- НАСТРОЙКА НА СЛУШАТЕЛИТЕ ---
     function setupEventListeners() {
         const enterGameButton = document.getElementById('enterGameBtn');
         if (enterGameButton) {
             enterGameButton.onclick = function() {
-                initializeAudio();
-                document.getElementById('welcomeScreen').classList.add('hidden');
-                const startScreen = document.getElementById('startScreen');
-                startScreen.classList.remove('hidden');
-                startScreen.classList.add('visible');
+                welcomeScreenEl.classList.add('hidden');
+                startScreenEl.classList.remove('hidden');
+                startScreenEl.classList.add('visible');
             };
-        } else {
-            console.error("КРИТИЧНА ГРЕШКА: Бутонът 'ВХОД' (enterGameBtn) не беше намерен!");
         }
         
         playAgainBtn.addEventListener('click', () => loadLayout(currentLayoutId));
@@ -303,7 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startTurnBtn.addEventListener('click', startNewTurn);
     }
 
-    // --- ПОМОЩНИ ФУНКЦИИ ---
     function shuffleArray(array) {
         const result = [...array];
         for (let i = result.length - 1; i > 0; i--) {
@@ -313,6 +294,5 @@ document.addEventListener('DOMContentLoaded', () => {
         return result;
     }
 
-    // --- СТАРТИРАНЕ НА ПРИЛОЖЕНИЕТО ---
     initializeApp();
 });
