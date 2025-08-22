@@ -25,27 +25,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let isTurnActive = false, availableSlots = [], activeSlotData = null, totalSlots = 0;
 
     // --- Функция за зареждане на всички данни от файлове ---
-    async function loadAllData() {
-        try {
-            const [portalsRes, itemsRes, layoutD1Res] = await Promise.all([
-                fetch('portals.json'),
-                fetch('themes.json'),
-                fetch('assets/layouts/d1.json') 
-            ]);
+async function loadAllData() {
+    try {
+        const cacheBuster = `?v=${new Date().getTime()}`;
+        const [portalsRes, itemsRes, layoutD1Res] = await Promise.all([
+            fetch(`portals.json${cacheBuster}`),
+            fetch(`themes.json${cacheBuster}`),
+            fetch(`assets/layouts/d1.json${cacheBuster}`) 
+        ]);
 
-            const portalsJson = await portalsRes.json();
-            const itemsJson = await itemsRes.json();
-            const layoutD1Json = await layoutD1Res.json();
+        const portalsJson = await portalsRes.json();
+        const itemsJson = await itemsRes.json();
+        const layoutD1Json = await layoutD1Res.json();
 
-            portalsData = portalsJson.portals;
-            allItems = itemsJson.allItems;
-            layoutsData['d1'] = layoutD1Json;
+        portalsData = portalsJson.portals;
+        allItems = itemsJson.allItems;
+        layoutsData['d1'] = layoutD1Json;
 
-        } catch (error) {
-            console.error("Критична грешка при зареждане на данните за играта:", error);
-            document.body.innerHTML = '<h1>Грешка при зареждане на играта. Моля, опитайте по-късно.</h1>';
-        }
+    } catch (error) {
+        console.error("Критична грешка при зареждане на данните за играта:", error);
+        document.body.innerHTML = '<h1>Грешка при зареждане на играта. Моля, опитайте по-късно.</h1>';
     }
+}
 
     // --- Инициализация ---
     async function initializeApp() {
