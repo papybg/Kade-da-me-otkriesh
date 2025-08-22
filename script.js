@@ -101,24 +101,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- ЗАРЕЖДАНЕ НА КОНКРЕТНО НИВО ---
     function loadLayout(layoutId) {
-        winScreenEl.classList.add('hidden');
-        const levelData = layoutsData[layoutId];
-        if (!levelData) { console.error(`Нивото ${layoutId} не бе намерено`); return; }
-        
-        resetGameState();
-        
-        const isMobile = window.innerWidth < 768;
-        const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
-        gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
-
-        availableSlots = JSON.parse(JSON.stringify(levelData.slots));
-        totalSlots = availableSlots.length;
-        createSlots(availableSlots);
-        const choicePool = generateChoicePool(levelData);
-        renderChoiceZone(choicePool);
-        gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
-        startTurnBtn.classList.remove('hidden');
+    winScreenEl.classList.add('hidden');
+    const levelData = layoutsData[layoutId];
+    if (!levelData) {
+        console.error(`Нивото ${layoutId} не бе намерено`);
+        return;
     }
+    
+    resetGameState();
+    
+    // Връщаме логиката да взима фона от данните за НИВОТО (layout).
+    const isMobile = window.innerWidth < 768;
+    const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
+    gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
+
+    availableSlots = JSON.parse(JSON.stringify(levelData.slots));
+    createSlots(availableSlots);
+    const choicePool = generateChoicePool(levelData);
+    renderChoiceZone(choicePool);
+    
+    gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
+    startTurnBtn.classList.remove('hidden');
+}
 
     // --- ГЕНЕРИРАНЕ НА ИЗБОРИТЕ ---
     function generateChoicePool(levelData) {
