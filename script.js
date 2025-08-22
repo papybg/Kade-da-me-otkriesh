@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ВЕРСИЯ С ЧАС ---
+    // --- КОД ЗА ВРЕМЕВИ ИНДИКАТОР ---
     const versionDisplay = document.getElementById('version-display');
     if (versionDisplay) {
         const now = new Date();
@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const seconds = String(now.getSeconds()).padStart(2, '0');
         versionDisplay.textContent = `V: ${hours}:${minutes}:${seconds}`;
     }
+    // --- КРАЙ НА КОДА ЗА ВРЕМЕВИ ИНДИКАТОР ---
 
     // --- ДЕФИНИРАНЕ НА ЕЛЕМЕНТИТЕ ---
     const welcomeScreenEl = document.getElementById('welcomeScreen');
@@ -24,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const playAgainBtn = document.getElementById('playAgainBtn');
     const startTurnBtn = document.getElementById('startTurnBtn');
     const backToMenuBtn = document.getElementById('backToMenuBtn');
-    const feedbackMessageEl = document.getElementById('feedbackMessage');
     const winScreenMenuBtn = document.getElementById('winScreenMenuBtn');
 
     // --- ПРОМЕНЛИВИ ЗА СЪСТОЯНИЕТО ---
@@ -33,6 +33,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let layoutsData = {};
     let currentPortalData = {}, currentLayoutId = null;
     let isTurnActive = false, availableSlots = [], activeSlotData = null;
+    
+    // --- АУДИО СИСТЕМА ---
+    let audioInitialized = false;
+    function initializeAudio() {
+        if (audioInitialized || typeof Tone === 'undefined') return;
+        try {
+            Tone.start();
+            audioInitialized = true;
+        } catch (e) {
+            console.error("Грешка при инициализиране на аудиото:", e);
+        }
+    }
 
     // --- Функция за зареждане на данни ---
     async function loadAllData() {
@@ -73,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Критична грешка при зареждане:", error);
-            document.body.innerHTML = `<h1>Грешка при зареждане на играта.</h1><p>${error.message}</p><p>Проверете имената на файловете в GitHub и конзолата (F12).</p>`;
+            document.body.innerHTML = `<h1>Грешка при зареждане на играта.</h1><p>${error.message}</p><p>Проверете имената на файловете в GitHub (напр. themes.json) и конзолата (F12).</p>`;
         }
     }
 
@@ -230,10 +242,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showFeedback(isCorrect, message) {
-        feedbackMessageEl.textContent = message;
-        feedbackMessageEl.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
-        feedbackMessageEl.classList.add('show');
-        setTimeout(() => { feedbackMessageEl.classList.remove('show'); }, 1200);
+        const feedbackEl = document.getElementById('feedbackMessage');
+        if (!feedbackEl) return; 
+
+        feedbackEl.textContent = message;
+        feedbackEl.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+        feedbackEl.classList.add('show');
+        setTimeout(() => {
+            feedbackEl.classList.remove('show');
+        }, 1200);
     }
 
     function placeImageInSlot(item, slotData) {
@@ -273,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const enterGameButton = document.getElementById('enterGameBtn');
         if (enterGameButton) {
             enterGameButton.onclick = function() {
+                initializeAudio();
                 welcomeScreenEl.classList.add('hidden');
                 startScreenEl.classList.remove('hidden');
                 startScreenEl.classList.add('visible');
