@@ -28,9 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const winScreenMenuBtn = document.getElementById('winScreenMenuBtn');
 
     // --- ПРОМЕНЛИВИ ЗА СЪСТОЯНИЕТО ---
-    let allItems = [];
-    let portalsData = [];
-    let layoutsData = {};
+    let allItems = [], portalsData = [], layoutsData = {};
     let currentPortalData = {}, currentLayoutId = null;
     let isTurnActive = false, availableSlots = [], activeSlotData = null;
     
@@ -41,9 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             Tone.start();
             audioInitialized = true;
-        } catch (e) {
-            console.error("Грешка при инициализиране на аудиото:", e);
-        }
+        } catch (e) { console.error("Грешка при аудиото:", e); }
     }
 
     // --- Функция за зареждане на данни ---
@@ -53,39 +49,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch('portals.json'),
                 fetch('themes.json')
             ]);
-
-            if (!portalsRes.ok) throw new Error(`portals.json: ${portalsRes.statusText}`);
-            if (!itemsRes.ok) throw new Error(`themes.json: ${itemsRes.statusText}`);
-
+            if (!portalsRes.ok) throw new Error(`portals.json: ${portalsRes.status}`);
+            if (!itemsRes.ok) throw new Error(`themes.json: ${itemsRes.status}`);
             const portalsJson = await portalsRes.json();
             const itemsJson = await itemsRes.json();
-
             portalsData = portalsJson.portals;
             allItems = itemsJson.allItems;
-
             const layoutIds = new Set();
-            portalsData.forEach(portal => {
-                portal.layouts.forEach(layoutId => layoutIds.add(layoutId));
+            portalsData.forEach(p => p.layouts.forEach(l => layoutIds.add(l)));
+            const layoutPromises = Array.from(layoutIds).map(id => 
+                fetch(`assets/layouts/${id}.json`).then(res => {
+                    if (!res.ok) throw new Error(`layouts/${id}.json: ${res.status}`);
+                    return res.json();
+                })
+            );
+            const loadedLayouts = await Promise.all(layoutPromises);
+            loadedLayouts.forEach((content, i) => {
+                layoutsData[Array.from(layoutIds)[i]] = content;
             });
-
-            const layoutFetchPromises = Array.from(layoutIds).map(id => {
-                return fetch(`assets/layouts/${id}.json`)
-                    .then(res => {
-                        if (!res.ok) throw new Error(`File not found: assets/layouts/${id}.json`);
-                        return res.json();
-                    });
-            });
-
-            const loadedLayouts = await Promise.all(layoutFetchPromises);
-
-            loadedLayouts.forEach((layoutContent, index) => {
-                const layoutId = Array.from(layoutIds)[index];
-                layoutsData[layoutId] = layoutContent;
-            });
-
         } catch (error) {
             console.error("Критична грешка при зареждане:", error);
-            document.body.innerHTML = `<h1>Грешка при зареждане на играта.</h1><p>${error.message}</p><p>Проверете имената на файловете в GitHub (напр. themes.json) и конзолата (F12).</p>`;
+            document.body.innerHTML = `<h1>Грешка: ${error.message}</h1>`;
         }
     }
 
@@ -109,7 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function startGame(portal) {
+    async function startGame(portal) {
+        await lockToLandscape();
         currentPortalData = portal;
         startScreenEl.classList.add('hidden');
         gameScreenEl.classList.remove('hidden');
@@ -123,18 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
         winScreenEl.classList.add('hidden');
         const levelData = layoutsData[layoutId];
         if (!levelData) { console.error(`Нивото ${layoutId} не бе намерено`); return; }
-        
         resetGameState();
-        
         const isMobile = window.innerWidth < 768;
         const backgroundUrl = isMobile ? levelData.background_small : levelData.background_large;
         gameBoardEl.style.backgroundImage = `url('${backgroundUrl}')`;
-
         availableSlots = JSON.parse(JSON.stringify(levelData.slots));
         createSlots(availableSlots);
         const choicePool = generateChoicePool(levelData);
         renderChoiceZone(choicePool);
-        
         gameMessageEl.textContent = "Натисни СТАРТ за да започнеш!";
         startTurnBtn.classList.remove('hidden');
     }
@@ -193,17 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const prevSlotEl = document.querySelector(`.slot[data-original-index="${activeSlotData.originalIndex}"]`);
             if (prevSlotEl) prevSlotEl.classList.remove('active');
         }
-
         if (availableSlots.length > 0) {
             const randomIndex = Math.floor(Math.random() * availableSlots.length);
             const randomSlotData = availableSlots[randomIndex];
-            
             const originalSlotIndex = Object.values(layoutsData).flatMap(l => l.slots).findIndex(s => 
                 s.position.top === randomSlotData.position.top && s.position.left === randomSlotData.position.left
             );
-            
             activeSlotData = { ...randomSlotData, originalIndex: originalSlotIndex };
-            
             const activeSlotEl = document.querySelector(`.slot[data-original-index="${activeSlotData.originalIndex}"]`);
             if (activeSlotEl) {
                 activeSlotEl.classList.add('active');
@@ -221,18 +198,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleChoiceClick(chosenItem, chosenImgElement) {
         if (!isTurnActive || !activeSlotData || chosenImgElement.classList.contains('used')) return;
-
         const isValid = activeSlotData.index.includes(chosenItem.index);
-        
         if (isValid) {
             showFeedback(true, "Браво!");
             placeImageInSlot(chosenItem, activeSlotData);
             chosenImgElement.classList.add('used');
-            
             availableSlots = availableSlots.filter(slot => 
                 slot.position.top !== activeSlotData.position.top || slot.position.left !== activeSlotData.position.left
             );
-
             setTimeout(activateNextSlot, 1500);
         } else {
             showFeedback(false, "Опитай пак!");
@@ -243,14 +216,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function showFeedback(isCorrect, message) {
         const feedbackEl = document.getElementById('feedbackMessage');
-        if (!feedbackEl) return; 
-
+        if (!feedbackEl) return;
         feedbackEl.textContent = message;
         feedbackEl.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
         feedbackEl.classList.add('show');
-        setTimeout(() => {
-            feedbackEl.classList.remove('show');
-        }, 1200);
+        setTimeout(() => { feedbackEl.classList.remove('show'); }, 1200);
     }
 
     function placeImageInSlot(item, slotData) {
@@ -260,12 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
         container.style.height = slotData.diameter;
         container.style.top = slotData.position.top;
         container.style.left = slotData.position.left;
-        
         const img = document.createElement('img');
         img.src = item.image;
         img.alt = item.name;
         img.classList.add('placed-image');
-        
         container.appendChild(img);
         document.getElementById('dropZone').appendChild(container);
     }
@@ -291,12 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (enterGameButton) {
             enterGameButton.onclick = function() {
                 initializeAudio();
+                enterFullscreen();
                 welcomeScreenEl.classList.add('hidden');
                 startScreenEl.classList.remove('hidden');
                 startScreenEl.classList.add('visible');
             };
         }
-        
         playAgainBtn.addEventListener('click', () => loadLayout(currentLayoutId));
         backToMenuBtn.addEventListener('click', showMenu);
         winScreenMenuBtn.addEventListener('click', showMenu);
@@ -310,6 +278,23 @@ document.addEventListener('DOMContentLoaded', () => {
             [result[i], result[j]] = [result[j], result[i]];
         }
         return result;
+    }
+
+    function enterFullscreen() {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) { elem.requestFullscreen(); } 
+        else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } 
+        else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+    }
+
+    async function lockToLandscape() {
+        try {
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+            }
+        } catch (error) {
+            console.log("Завъртането на екрана не се поддържа на това устройство.");
+        }
     }
 
     initializeApp();
