@@ -320,3 +320,12 @@ html, body {
     0%, 100% { transform: scale(1); text-shadow: 0 0 20px var(--slot-highlight); }
     50% { transform: scale(1.1); text-shadow: 0 0 40px var(--slot-highlight); }
 }
+#version-display {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.8rem;
+    color: white;
+    opacity: 0.5;
+    font-family: monospace;
+}
