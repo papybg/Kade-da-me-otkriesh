@@ -67,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loadedLayouts.forEach((content, i) => {
                 layoutsData[Array.from(layoutIds)[i]] = content;
             });
-        } catch (error) {
+        } catch (error)
+        {
             console.error("Критична грешка при зареждане:", error);
             document.body.innerHTML = `<h1>Грешка: ${error.message}</h1>`;
         }
