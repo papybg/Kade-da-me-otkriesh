@@ -249,7 +249,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showMenu() {
+        unlockOrientation();
+        exitFullscreen();
         gameScreenEl.classList.add('hidden');
+        winScreenEl.classList.add('hidden');
         startScreenEl.classList.remove('hidden');
         startScreenEl.classList.add('visible');
     }
@@ -271,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startTurnBtn.addEventListener('click', startNewTurn);
     }
 
+    // --- ПОМОЩНИ ФУНКЦИИ ---
     function shuffleArray(array) {
         const result = [...array];
         for (let i = result.length - 1; i > 0; i--) {
@@ -284,7 +288,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const elem = document.documentElement;
         if (elem.requestFullscreen) { elem.requestFullscreen(); } 
         else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } 
-        else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+        else if (document.msRequestFullscreen) { document.msRequestFullscreen(); }
+    }
+
+    function exitFullscreen() {
+        if (document.exitFullscreen) { document.exitFullscreen(); } 
+        else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); } 
+        else if (document.msExitFullscreen) { document.msExitFullscreen(); }
     }
 
     async function lockToLandscape() {
@@ -293,9 +303,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 await screen.orientation.lock('landscape');
             }
         } catch (error) {
-            console.log("Завъртането на екрана не се поддържа на това устройство.");
+            console.log("Завъртането на екрана не се поддържа.");
         }
     }
 
+    function unlockOrientation() {
+        try {
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        } catch (error) {
+            console.log("Ориентацията не може да бъде отключена.");
+        }
+    }
+
+    // --- СТАРТИРАНЕ НА ПРИЛОЖЕНИЕТО ---
     initializeApp();
 });
